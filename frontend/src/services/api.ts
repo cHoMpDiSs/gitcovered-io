@@ -27,23 +27,26 @@ api.interceptors.response.use(
 // Add request interceptor to include JWT token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('jwt_token');
-  console.log('Current path:', config.url);
-  console.log('Token exists:', !!token);
+  
+  // Ensure headers object exists
+  config.headers = config.headers || {};
   
   if (token) {
-    // Ensure headers object exists
-    config.headers = config.headers || {};
     // Set Authorization header with Bearer token
     config.headers.Authorization = `Bearer ${token}`;
-    // Set Content-Type if not already set
-    config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json';
-    console.log('Request headers:', config.headers);
   } else {
-    console.warn('No token found in localStorage');
+    // If no token exists, check if we're on a protected route and redirect to login
+    const protectedRoutes = ['/dashboard', '/admin/dashboard', '/profile', '/auth/status'];
+    if (protectedRoutes.some(route => config.url?.includes(route))) {
+      window.location.href = '/login';
+    }
   }
+  
+  // Set Content-Type if not already set
+  config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json';
+  
   return config;
 }, (error) => {
-  console.error('Request interceptor error:', error);
   return Promise.reject(error);
 });
 

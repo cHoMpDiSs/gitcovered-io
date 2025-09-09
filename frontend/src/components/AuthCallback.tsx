@@ -14,10 +14,10 @@ const AuthCallback: React.FC = () => {
         const token = params.get('token');
 
         if (token) {
-          // Store token
+          // Store token and set up axios headers
           localStorage.setItem('jwt_token', token);
-
-          // Check auth status
+          
+          // Check auth status with the new token
           const auth = await checkAuthStatus();
           if (auth.authenticated) {
             navigate(auth.is_admin ? '/admin/dashboard' : '/dashboard');
