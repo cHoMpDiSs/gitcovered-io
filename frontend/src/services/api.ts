@@ -36,7 +36,7 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   } else {
     // If no token exists, check if we're on a protected route and redirect to login
-    const protectedRoutes = ['/dashboard', '/admin/dashboard', '/profile', '/auth/status'];
+    const protectedRoutes = ['/api/dashboard', '/api/admin/dashboard', '/api/profile', '/api/auth/status'];
     if (protectedRoutes.some(route => config.url?.includes(route))) {
       window.location.href = '/login';
     }
@@ -56,7 +56,7 @@ export const loginWithGoogle = () => {
 
 export const signupWithEmail = async (email: string, password: string, fullName: string) => {
   try {
-    const response = await api.post('/signup', {
+    const response = await api.post('/api/signup', {
       email,
       password,
       full_name: fullName
@@ -72,7 +72,7 @@ export const signupWithEmail = async (email: string, password: string, fullName:
 
 export const loginWithEmail = async (email: string, password: string) => {
   try {
-    const response = await api.post('/login/password', {
+    const response = await api.post('/api/login/password', {
       email,
       password
     });
@@ -87,7 +87,7 @@ export const loginWithEmail = async (email: string, password: string) => {
 
 export const checkAuthStatus = async () => {
   try {
-    const response = await api.get('/auth/status');
+    const response = await api.get('/api/auth/status');
     return response.data;
   } catch (error) {
     console.error('Auth status error:', error);
@@ -97,7 +97,7 @@ export const checkAuthStatus = async () => {
 
 export const getUserProfile = async () => {
   try {
-    const response = await api.get('/dashboard');
+    const response = await api.get('/api/dashboard');
     return response.data;
   } catch (error) {
     console.error('Get profile error:', error);
@@ -112,7 +112,7 @@ export const logout = () => {
 
 export const getAdminUsers = async () => {
   try {
-    const response = await api.get('/admin/users');
+    const response = await api.get('/api/admin/users');
     return response.data;
   } catch (error) {
     console.error('Get admin users error:', error);
@@ -122,7 +122,7 @@ export const getAdminUsers = async () => {
 
 export const updateProfile = async (data: { fullName: string; email: string }) => {
   try {
-    const response = await api.put('/profile', {
+    const response = await api.put('/api/profile', {
       full_name: data.fullName,
       email: data.email
     });

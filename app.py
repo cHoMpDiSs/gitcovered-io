@@ -195,7 +195,7 @@ def authorized():
         frontend_url = 'https://getcovered-io-d59e2aaeeb96.herokuapp.com' if os.getenv('FLASK_ENV') == 'production' else 'http://localhost:3000'
         return redirect(f'{frontend_url}/login?error=auth_failed')
 
-@app.route('/dashboard')
+@app.route('/api/dashboard')
 @jwt_required()
 def dashboard():
     current_user = get_jwt_identity()
@@ -217,7 +217,7 @@ def dashboard():
         is_admin=False
     )
 
-@app.route('/admin/users')
+@app.route('/api/admin/users')
 @jwt_required()
 def get_all_users():
     current_user = get_jwt_identity()
@@ -243,7 +243,7 @@ def get_all_users():
     except Exception as e:
         return jsonify({'error': 'Failed to fetch users'}), 500
 
-@app.route('/admin/dashboard')
+@app.route('/api/admin/dashboard')
 @jwt_required()
 def admin_dashboard():
     current_user = get_jwt_identity()
@@ -264,7 +264,7 @@ def admin_dashboard():
         is_admin=True
     )
 
-@app.route('/signup', methods=['POST', 'OPTIONS'])
+@app.route('/api/signup', methods=['POST', 'OPTIONS'])
 def signup():
     if request.method == 'OPTIONS':
         return '', 200
@@ -323,7 +323,7 @@ def signup():
         db.session.rollback()
         return jsonify({'error': 'Something went wrong while creating your account. Please try again'}), 500
 
-@app.route('/login/password', methods=['POST', 'OPTIONS'])
+@app.route('/api/login/password', methods=['POST', 'OPTIONS'])
 def login_with_password():
     if request.method == 'OPTIONS':
         return '', 200
@@ -362,7 +362,7 @@ def login_with_password():
         'token': access_token
     })
 
-@app.route('/profile', methods=['PUT', 'OPTIONS'])
+@app.route('/api/profile', methods=['PUT', 'OPTIONS'])
 @jwt_required()
 def update_profile():
     if request.method == 'OPTIONS':
@@ -413,7 +413,7 @@ def update_profile():
         db.session.rollback()
         return jsonify({'error': 'Failed to update profile'}), 500
 
-@app.route('/auth/status')
+@app.route('/api/auth/status')
 @jwt_required()
 def auth_status():
     current_user = get_jwt_identity()
