@@ -38,6 +38,9 @@ instance/
 *.swp
 *.swo
 
+# Secrets
+client_secrets.json
+
 # OS
 .DS_Store
 .DS_Store?
