@@ -71,10 +71,12 @@ if not os.path.exists(CLIENT_SECRETS_FILE):
         json.dump(client_config, f)
 
 # OAuth2 Flow
+redirect_uri = 'https://getcovered-io-d59e2aaeeb96.herokuapp.com/login/authorized' if os.getenv('FLASK_ENV') == 'production' else 'http://127.0.0.1:5000/login/authorized'
+
 flow = Flow.from_client_secrets_file(
     CLIENT_SECRETS_FILE,
     scopes=['openid', 'https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
-    redirect_uri='http://127.0.0.1:5000/login/authorized'
+    redirect_uri=redirect_uri
 )
 
 db = SQLAlchemy(app)
@@ -150,11 +152,13 @@ def authorized():
         )
         
         # Redirect to frontend with token
-        return redirect(f'http://localhost:3000/auth/callback?token={access_token}')
+        frontend_url = 'https://getcovered-io-d59e2aaeeb96.herokuapp.com' if os.getenv('FLASK_ENV') == 'production' else 'http://localhost:3000'
+        return redirect(f'{frontend_url}/auth/callback?token={access_token}')
         
     except Exception as e:
         print("Authorization Error:", str(e))  # Debug print
-        return redirect('http://localhost:3000/login?error=auth_failed')
+        frontend_url = 'https://getcovered-io-d59e2aaeeb96.herokuapp.com' if os.getenv('FLASK_ENV') == 'production' else 'http://localhost:3000'
+        return redirect(f'{frontend_url}/login?error=auth_failed')
 
 @app.route('/dashboard')
 @jwt_required()
