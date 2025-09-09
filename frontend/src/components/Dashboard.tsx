@@ -15,34 +15,22 @@ const Dashboard = (): JSX.Element => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const navigate = useNavigate();
 
-  const verifyAndFetchProfile = useCallback(async () => {
+  const fetchProfile = useCallback(async () => {
     try {
-      // First check if token exists
       const token = localStorage.getItem('jwt_token');
       if (!token) {
-        console.error('No token found');
         navigate('/login');
         return;
       }
 
-      // Check authentication status
-      const auth = await checkAuthStatus();
-      if (!auth.authenticated) {
-        console.error('User is not authenticated');
-        localStorage.removeItem('jwt_token');
-        navigate('/login');
-        return;
-      }
-
-      // If user is admin, redirect to admin dashboard
-      if (auth.is_admin) {
-        console.log('User is admin, redirecting to admin dashboard');
-        navigate('/admin/dashboard');
-        return;
-      }
-
-      // If user is authenticated and not admin, fetch profile
       const data = await getUserProfile();
+      
+      // Handle backend redirects
+      if (data.redirect) {
+        navigate(data.redirect);
+        return;
+      }
+
       setProfile(data);
     } catch (error) {
       console.error('Error in dashboard:', error);
@@ -52,8 +40,8 @@ const Dashboard = (): JSX.Element => {
   }, [navigate]);
 
   useEffect(() => {
-    verifyAndFetchProfile();
-  }, [verifyAndFetchProfile]);
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleLogout = async () => {
     try {
@@ -191,7 +179,7 @@ const Dashboard = (): JSX.Element => {
           </Flex>
               </Tabs.Content>
               <Tabs.Content value="settings">
-                <Settings onProfileUpdate={() => verifyAndFetchProfile()} />
+                <Settings onProfileUpdate={() => fetchProfile()} />
               </Tabs.Content>
             </Box>
           </Tabs.Root>

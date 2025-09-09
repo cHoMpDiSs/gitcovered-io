@@ -29,6 +29,10 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 app.config['JWT_TOKEN_LOCATION'] = ['headers']
 app.config['JWT_HEADER_NAME'] = 'Authorization'
 app.config['JWT_HEADER_TYPE'] = 'Bearer'
+app.config['JWT_ERROR_MESSAGE_KEY'] = 'error'
+app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+app.config['JWT_ACCESS_COOKIE_PATH'] = '/'
+app.config['JWT_COOKIE_SECURE'] = os.getenv('FLASK_ENV') == 'production'
 jwt = JWTManager(app)
 
 @jwt.invalid_token_loader
@@ -55,7 +59,7 @@ def expired_token_callback(jwt_header, jwt_data):
         'error': 'token_expired'
     }), 401
 
-# Enable CORS
+# Enable CORS with specific configuration for production
 CORS(app, 
      resources={
          r"/*": {
@@ -70,9 +74,11 @@ CORS(app,
              "expose_headers": ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
              "max_age": 600,
              "send_wildcard": False,
-             "vary_header": True
+             "vary_header": True,
+             "allow_credentials": True
          }
-     })
+     },
+     supports_credentials=True)
 
 # OAuth 2 client setup
 CLIENT_SECRETS_FILE = "client_secrets.json"
@@ -196,7 +202,20 @@ def dashboard():
     user = Profile.query.filter_by(email=current_user).first()
     if not user:
         return jsonify({'error': 'User not found'}), 404
-    return jsonify(full_name=user.full_name, email=user.email, avatar_img=user.avatar_img)
+    
+    # If user is admin, redirect to admin dashboard
+    if current_user.endswith('@getcovered.io') or current_user == 'jordon@soberfriend.io':
+        return jsonify({
+            'redirect': '/admin/dashboard',
+            'is_admin': True
+        })
+    
+    return jsonify(
+        full_name=user.full_name,
+        email=user.email,
+        avatar_img=user.avatar_img,
+        is_admin=False
+    )
 
 @app.route('/admin/users')
 @jwt_required()
@@ -229,11 +248,21 @@ def get_all_users():
 def admin_dashboard():
     current_user = get_jwt_identity()
     if not (current_user.endswith('@getcovered.io') or current_user == 'jordon@soberfriend.io'):
-        return jsonify({'error': 'Unauthorized'}), 403
+        return jsonify({
+            'redirect': '/dashboard',
+            'error': 'Unauthorized access'
+        })
+    
     user = Profile.query.filter_by(email=current_user).first()
     if not user:
         return jsonify({'error': 'User not found'}), 404
-    return jsonify(full_name=user.full_name, email=user.email, avatar_img=user.avatar_img)
+    
+    return jsonify(
+        full_name=user.full_name,
+        email=user.email,
+        avatar_img=user.avatar_img,
+        is_admin=True
+    )
 
 @app.route('/signup', methods=['POST', 'OPTIONS'])
 def signup():
@@ -407,11 +436,13 @@ def init_db():
 # Add security headers to all responses
 @app.after_request
 def add_security_headers(response):
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
-    response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
-    if request.method == 'OPTIONS':
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With, Accept, Origin'
+    origin = request.headers.get('Origin')
+    if origin in ["http://localhost:3000", "https://getcovered-io-d59e2aaeeb96.herokuapp.com"]:
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        if request.method == 'OPTIONS':
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With, Accept, Origin'
     return response
 
 init_db()
