@@ -33,6 +33,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requireAdmin = fa
         setIsAuthenticated(false);
         setIsLoading(false);
         toast.error('Authentication failed. Please log in again.');
+        localStorage.removeItem('jwt_token'); // Clear invalid token
       }
     };
 
