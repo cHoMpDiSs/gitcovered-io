@@ -32,16 +32,18 @@ jwt = JWTManager(app)
 CORS(app, 
      resources={
          r"/*": {
-"origins": [
+             "origins": [
                 "http://localhost:3000",
                 "https://getcovered-io-d59e2aaeeb96.herokuapp.com",
                 os.getenv('FRONTEND_URL', '')
-            ],
+             ],
              "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-             "allow_headers": ["Content-Type", "Authorization"],
+             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
              "supports_credentials": True,
-             "expose_headers": ["Content-Type", "Authorization"],
-             "max_age": 600
+             "expose_headers": ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+             "max_age": 600,
+             "send_wildcard": False,
+             "vary_header": True
          }
      })
 
@@ -374,6 +376,16 @@ def init_db():
             db.create_all()
         except Exception as e:
             print(f"Database initialization error: {e}")
+
+# Add security headers to all responses
+@app.after_request
+def add_security_headers(response):
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+    if request.method == 'OPTIONS':
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With, Accept, Origin'
+    return response
 
 init_db()
 
