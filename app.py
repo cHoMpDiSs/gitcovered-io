@@ -26,7 +26,34 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # JWT Configuration
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your-jwt-secret-key')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+app.config['JWT_TOKEN_LOCATION'] = ['headers']
+app.config['JWT_HEADER_NAME'] = 'Authorization'
+app.config['JWT_HEADER_TYPE'] = 'Bearer'
 jwt = JWTManager(app)
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error_string):
+    print(f"Invalid token error: {error_string}")  # Debug logging
+    return jsonify({
+        'message': 'Invalid token',
+        'error': str(error_string)
+    }), 401
+
+@jwt.unauthorized_loader
+def missing_token_callback(error_string):
+    print(f"Missing token error: {error_string}")  # Debug logging
+    return jsonify({
+        'message': 'Missing Authorization Header',
+        'error': str(error_string)
+    }), 401
+
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_data):
+    print(f"Expired token: {jwt_header}, {jwt_data}")  # Debug logging
+    return jsonify({
+        'message': 'Token has expired',
+        'error': 'token_expired'
+    }), 401
 
 # Enable CORS
 CORS(app, 

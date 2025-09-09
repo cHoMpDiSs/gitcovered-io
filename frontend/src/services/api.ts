@@ -28,9 +28,16 @@ api.interceptors.response.use(
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('jwt_token');
   if (token) {
+    // Ensure headers object exists
+    config.headers = config.headers || {};
+    // Set Authorization header with Bearer token
     config.headers.Authorization = `Bearer ${token}`;
+    // Set Content-Type if not already set
+    config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json';
   }
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
 export const loginWithGoogle = () => {
