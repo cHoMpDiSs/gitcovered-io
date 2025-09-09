@@ -18,7 +18,7 @@ const Navbar: React.FC = () => {
             onClick={() => navigate('/')}
             className="text-2xl font-bold text-blue-600 cursor-pointer ml-4 tracking-tight hover:text-blue-700 transition-colors"
           >
-            SoberFriend.io
+            GetCovered.io
           </div>
 
           <Flex gap="4" className="mr-4">
