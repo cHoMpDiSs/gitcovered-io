@@ -11,45 +11,44 @@ interface UserProfile {
   avatar_img: string;
 }
 
-const Dashboard: React.FC = (): JSX.Element => {
+const Dashboard = (): JSX.Element => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const navigate = useNavigate();
 
   const verifyAndFetchProfile = useCallback(async () => {
-      try {
-        // First check if token exists
-        const token = localStorage.getItem('jwt_token');
-        if (!token) {
-          console.error('No token found');
-          navigate('/login');
-          return;
-        }
+    try {
+      // First check if token exists
+      const token = localStorage.getItem('jwt_token');
+      if (!token) {
+        console.error('No token found');
+        navigate('/login');
+        return;
+      }
 
-        // Check authentication status
-        const auth = await checkAuthStatus();
-        if (!auth.authenticated) {
-          console.error('User is not authenticated');
-          localStorage.removeItem('jwt_token');
-          navigate('/login');
-          return;
-        }
-
-        // If user is admin, redirect to admin dashboard
-        if (auth.is_admin) {
-          console.log('User is admin, redirecting to admin dashboard');
-          navigate('/admin/dashboard');
-          return;
-        }
-
-        // If user is authenticated and not admin, fetch profile
-        const data = await getUserProfile();
-        setProfile(data);
-      } catch (error) {
-        console.error('Error in dashboard:', error);
+      // Check authentication status
+      const auth = await checkAuthStatus();
+      if (!auth.authenticated) {
+        console.error('User is not authenticated');
         localStorage.removeItem('jwt_token');
         navigate('/login');
+        return;
       }
-    };
+
+      // If user is admin, redirect to admin dashboard
+      if (auth.is_admin) {
+        console.log('User is admin, redirecting to admin dashboard');
+        navigate('/admin/dashboard');
+        return;
+      }
+
+      // If user is authenticated and not admin, fetch profile
+      const data = await getUserProfile();
+      setProfile(data);
+    } catch (error) {
+      console.error('Error in dashboard:', error);
+      localStorage.removeItem('jwt_token');
+      navigate('/login');
+    }
   }, [navigate]);
 
   useEffect(() => {
