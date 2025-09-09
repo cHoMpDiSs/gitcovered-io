@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Theme, Flex, Text, Box, Container, Avatar, Button, Tabs } from '@radix-ui/themes';
-import { getUserProfile, logout } from '../services/api';
+import { getUserProfile, logout, checkAuthStatus } from '../services/api';
 import Settings from './Settings';
 import '@radix-ui/themes/styles.css';
 
@@ -30,7 +30,21 @@ const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
   };
 
   useEffect(() => {
-    fetchProfile();
+    const checkUserAndFetch = async () => {
+      try {
+        const auth = await checkAuthStatus();
+        if (auth.is_admin) {
+          navigate('/admin/dashboard');
+          return;
+        }
+        fetchProfile();
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+        navigate('/login');
+      }
+    };
+
+    checkUserAndFetch();
   }, [navigate]);
 
   const handleLogout = async () => {
@@ -84,6 +98,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
                   variant="soft"
                   color="gray"
                   onClick={handleLogout}
+                  className="mr-4"
                 >
                   Logout
                 </Button>

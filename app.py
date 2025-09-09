@@ -128,7 +128,7 @@ def authorized():
             additional_claims={
                 'full_name': full_name,
                 'avatar_img': avatar_img,
-                'is_admin': email.endswith('@getcovered.io')
+                'is_admin': email.endswith('@getcovered.io') or email == 'jordon@soberfriend.io'
             }
         )
         
@@ -162,8 +162,9 @@ def get_all_users():
             'full_name': user.full_name,
             'email': user.email,
             'avatar_img': user.avatar_img,
-            'is_admin': user.email.endswith('@getcovered.io'),
-            'created_at': user.created_at.isoformat() if hasattr(user, 'created_at') else None
+            'is_admin': user.email.endswith('@getcovered.io') or user.email == 'jordon@soberfriend.io',
+            'created_at': user.created_at.isoformat() if user.created_at else None,
+            'last_login': user.last_login.isoformat() if user.last_login else None
         } for user in users]
         
         return jsonify({
@@ -177,7 +178,7 @@ def get_all_users():
 @jwt_required()
 def admin_dashboard():
     current_user = get_jwt_identity()
-    if not current_user.endswith('@getcovered.io'):
+    if not (current_user.endswith('@getcovered.io') or current_user == 'jordon@soberfriend.io'):
         return jsonify({'error': 'Unauthorized'}), 403
     user = Profile.query.filter_by(email=current_user).first()
     if not user:
@@ -231,7 +232,7 @@ def signup():
             identity=email,
             additional_claims={
                 'full_name': full_name,
-                'is_admin': email.endswith('@getcovered.io')
+                'is_admin': email.endswith('@getcovered.io') or email == 'jordon@soberfriend.io'
             }
         )
         
@@ -273,7 +274,7 @@ def login_with_password():
         additional_claims={
             'full_name': user.full_name,
             'avatar_img': user.avatar_img,
-            'is_admin': email.endswith('@getcovered.io')
+            'is_admin': email.endswith('@getcovered.io') or email == 'jordon@soberfriend.io'
         }
     )
 
@@ -339,7 +340,7 @@ def auth_status():
     current_user = get_jwt_identity()
     return jsonify({
         'authenticated': True,
-        'is_admin': current_user.endswith('@getcovered.io')
+        'is_admin': current_user.endswith('@getcovered.io') or current_user == 'jordon@soberfriend.io'
     })
 
 if __name__ == '__main__':
