@@ -1,15 +1,31 @@
 # getcovered.io Assignment
 
-A Flask application demonstrating Google OAuth integration with role-based access control.
+A Flask application demonstrating Google OAuth integration with JWT-based role-based access control.
 
 ## Features
 
 - Google OAuth Authentication
+- JWT-based Authentication
 - Role-based access control:
   - @getcovered.io emails → Admin Dashboard
   - All other emails → User Dashboard
 - SQLite database for user profiles
-- React frontend (in progress)
+- React frontend with TypeScript
+
+## Tech Stack
+
+### Backend
+- Flask
+- SQLAlchemy (SQLite)
+- Flask-JWT-Extended
+- Google OAuth2
+- Python 3.x
+
+### Frontend
+- React with TypeScript
+- React Router
+- Axios for API calls
+- JWT Authentication
 
 ## Setup
 
@@ -25,7 +41,7 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Install dependencies
+3. Install backend dependencies
 ```bash
 pip install -r requirements.txt
 ```
@@ -35,31 +51,49 @@ pip install -r requirements.txt
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 SECRET_KEY=your_secret_key
+JWT_SECRET_KEY=your_jwt_secret_key
 ```
 
-5. Run the application
+5. Install frontend dependencies
 ```bash
-flask run
+cd frontend
+npm install
 ```
 
-## Project Structure
+6. Run the application
+```bash
+# Terminal 1 - Backend
+flask run
 
-- `app.py`: Main Flask application with Google OAuth and role-based access
-- `frontend/`: React frontend (in progress)
-- `instance/`: SQLite database location
+# Terminal 2 - Frontend
+cd frontend
+npm start
+```
 
 ## Authentication Flow
 
-1. User signs in with Google OAuth
-2. Application verifies user's email domain:
-   - @getcovered.io emails are directed to admin dashboard
-   - All other emails are directed to user dashboard
-3. User profile is stored in SQLite database
+1. User clicks "Sign in with Google"
+2. Google OAuth handles authentication
+3. Backend verifies user and creates JWT token
+4. Frontend stores JWT token
+5. JWT token used for subsequent API calls
+6. Role-based access based on email domain:
+   - @getcovered.io emails get admin access
+   - All other emails get regular user access
+
+## API Endpoints
+
+- `/login` - Initiates Google OAuth flow
+- `/login/authorized` - OAuth callback, returns JWT
+- `/dashboard` - User dashboard (JWT required)
+- `/admin/dashboard` - Admin dashboard (JWT required)
+- `/auth/status` - Check authentication status
 
 ## Development
 
-The project is built with:
-- Flask (Backend)
-- SQLite (Database)
-- Authlib (OAuth)
-- React (Frontend - in progress)
+The project uses:
+- TypeScript for type safety
+- JWT for secure authentication
+- SQLite for data storage
+- Google OAuth for authentication
+- React for frontend UI

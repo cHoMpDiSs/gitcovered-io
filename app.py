@@ -1,36 +1,66 @@
-from flask import Flask, redirect, url_for, session, request, jsonify
+from flask import Flask, redirect, url_for, request, jsonify
 from flask_cors import CORS
-from authlib.integrations.flask_client import OAuth
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 import os
 from dotenv import load_dotenv
+from google_auth_oauthlib.flow import Flow
+from google.oauth2 import id_token
+from google.auth.transport import requests
+import pathlib
+import json
+from datetime import timedelta
 
 # Load environment variables from .env file
 load_dotenv()
 
-app = Flask(__name__)
-# Enable CORS for the React frontend
-CORS(app, supports_credentials=True, origins=['http://localhost:3000'])
+# This is required for Google OAuth to work with HTTP in development
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
+app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///profiles.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# JWT Configuration
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your-jwt-secret-key')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+jwt = JWTManager(app)
+
+# Enable CORS
+CORS(app, 
+     resources={
+         r"/*": {
+             "origins": ["http://localhost:3000"],
+             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+             "allow_headers": ["Content-Type", "Authorization"],
+             "supports_credentials": True
+         }
+     })
+
 # OAuth 2 client setup
-oauth = OAuth(app)
+CLIENT_SECRETS_FILE = "client_secrets.json"
 
-if not os.getenv('GOOGLE_CLIENT_ID') or not os.getenv('GOOGLE_CLIENT_SECRET'):
-    raise ValueError("Google OAuth credentials not found in environment variables!")
-
-google = oauth.register(
-    name='google',
-    client_id=os.getenv('GOOGLE_CLIENT_ID'),
-    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={
-        'scope': 'openid email profile',
-        'prompt': 'select_account'
+# Create client_secrets.json if it doesn't exist
+if not os.path.exists(CLIENT_SECRETS_FILE):
+    client_config = {
+        "web": {
+            "client_id": os.getenv('GOOGLE_CLIENT_ID'),
+            "client_secret": os.getenv('GOOGLE_CLIENT_SECRET'),
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "redirect_uris": ["http://127.0.0.1:5000/login/authorized"],
+            "javascript_origins": ["http://localhost:3000", "http://127.0.0.1:5000"]
+        }
     }
+    with open(CLIENT_SECRETS_FILE, 'w') as f:
+        json.dump(client_config, f)
+
+# OAuth2 Flow
+flow = Flow.from_client_secrets_file(
+    CLIENT_SECRETS_FILE,
+    scopes=['openid', 'https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
+    redirect_uri='http://127.0.0.1:5000/login/authorized'
 )
 
 db = SQLAlchemy(app)
@@ -49,29 +79,29 @@ def index():
 
 @app.route('/login')
 def login():
-    redirect_uri = url_for('authorized', _external=True)
-    print("Login Redirect URI:", redirect_uri)  # Debug print
-    print("Using Client ID:", os.getenv('GOOGLE_CLIENT_ID'))  # Debug print
-    return google.authorize_redirect(redirect_uri)
-
-@app.route('/logout')
-def logout():
-    session.pop('google_token', None)
-    session.pop('email', None)
-    return redirect(url_for('index'))
+    authorization_url, state = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true',
+        prompt='consent'
+    )
+    print("Redirecting to:", authorization_url)  # Debug print
+    return redirect(authorization_url)
 
 @app.route('/login/authorized')
 def authorized():
     try:
-        token = google.authorize_access_token()
-        print("Received token:", bool(token))  # Debug print
+        print("Received callback with URL:", request.url)  # Debug print
+        flow.fetch_token(authorization_response=request.url)
+        credentials = flow.credentials
         
-        resp = google.get('https://openidconnect.googleapis.com/v1/userinfo')
-        user_info = resp.json()
-        print("User info:", user_info)  # Debug print
-        email = user_info['email']
-        full_name = user_info['name']
-        avatar_img = user_info['picture']
+        id_info = id_token.verify_oauth2_token(
+            credentials.id_token, requests.Request(), os.getenv('GOOGLE_CLIENT_ID')
+        )
+        print("Received user info:", id_info)  # Debug print
+        
+        email = id_info['email']
+        full_name = id_info['name']
+        avatar_img = id_info.get('picture', '')
         
         # Check if user exists, if not, create a new user
         user = Profile.query.filter_by(email=email).first()
@@ -84,30 +114,51 @@ def authorized():
             db.session.add(user)
             db.session.commit()
         
-        session['email'] = email
+        # Create JWT token
+        access_token = create_access_token(
+            identity=email,
+            additional_claims={
+                'full_name': full_name,
+                'avatar_img': avatar_img,
+                'is_admin': email.endswith('@getcovered.io')
+            }
+        )
         
-        # Redirect based on email domain
-        if email.endswith('@getcovered.io'):
-            return redirect('http://localhost:3000/admin/dashboard')
-        return redirect('http://localhost:3000/dashboard')
+        # Redirect to frontend with token
+        return redirect(f'http://localhost:3000/auth/callback?token={access_token}')
         
     except Exception as e:
         print("Authorization Error:", str(e))  # Debug print
-        return f"Authorization failed: {str(e)}"
+        return redirect('http://localhost:3000/login?error=auth_failed')
 
 @app.route('/dashboard')
+@jwt_required()
 def dashboard():
-    if 'email' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
-    user = Profile.query.filter_by(email=session['email']).first()
+    current_user = get_jwt_identity()
+    user = Profile.query.filter_by(email=current_user).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
     return jsonify(full_name=user.full_name, email=user.email, avatar_img=user.avatar_img)
 
 @app.route('/admin/dashboard')
+@jwt_required()
 def admin_dashboard():
-    if 'email' not in session or not session['email'].endswith('@getcovered.io'):
+    current_user = get_jwt_identity()
+    if not current_user.endswith('@getcovered.io'):
         return jsonify({'error': 'Unauthorized'}), 403
-    user = Profile.query.filter_by(email=session['email']).first()
+    user = Profile.query.filter_by(email=current_user).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
     return jsonify(full_name=user.full_name, email=user.email, avatar_img=user.avatar_img)
+
+@app.route('/auth/status')
+@jwt_required()
+def auth_status():
+    current_user = get_jwt_identity()
+    return jsonify({
+        'authenticated': True,
+        'is_admin': current_user.endswith('@getcovered.io')
+    })
 
 if __name__ == '__main__':
     with app.app_context():

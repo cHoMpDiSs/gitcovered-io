@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserProfile, logout } from '../services/api';
+import { getUserProfile } from '../services/api';
+
+interface DashboardProps {
+  isAdmin?: boolean;
+}
 
 interface UserProfile {
   full_name: string;
@@ -8,7 +12,7 @@ interface UserProfile {
   avatar_img: string;
 }
 
-const Dashboard: React.FC = () => {
+const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const navigate = useNavigate();
 
@@ -26,15 +30,6 @@ const Dashboard: React.FC = () => {
     fetchProfile();
   }, [navigate]);
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
-
   if (!profile) {
     return <div>Loading...</div>;
   }
@@ -43,13 +38,9 @@ const Dashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-semibold">User Dashboard</h1>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm text-red-600 hover:text-red-700"
-          >
-            Logout
-          </button>
+          <h1 className="text-xl font-semibold">
+            {isAdmin ? 'Admin Dashboard' : 'User Dashboard'}
+          </h1>
         </div>
       </nav>
 
@@ -64,6 +55,7 @@ const Dashboard: React.FC = () => {
             <div>
               <h2 className="text-xl font-medium text-gray-900">{profile.full_name}</h2>
               <p className="text-gray-500">{profile.email}</p>
+              {isAdmin && <p className="text-green-600 font-medium">Admin Access</p>}
             </div>
           </div>
         </div>
