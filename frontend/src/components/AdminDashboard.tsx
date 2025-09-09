@@ -1,7 +1,7 @@
 import React from 'react';
 import { Theme, Flex, Text, Box, Table, Avatar, Tabs, Button } from '@radix-ui/themes';
 import { useNavigate } from 'react-router-dom';
-import { logout, getUserProfile } from '../services/api';
+import { logout, getUserProfile, checkAuthStatus } from '../services/api';
 import Settings from './Settings';
 
 interface User {
@@ -22,20 +22,37 @@ const AdminDashboard: React.FC = () => {
   });
 
   React.useEffect(() => {
-    const fetchProfile = async () => {
+    const verifyAndFetchProfile = async () => {
       try {
+        // First check if user is authenticated and is admin
+        const token = localStorage.getItem('jwt_token');
+        if (!token) {
+          console.error('No token found');
+          navigate('/login');
+          return;
+        }
+
+        const auth = await checkAuthStatus();
+        if (!auth.authenticated || !auth.is_admin) {
+          console.error('User is not authenticated or not an admin');
+          navigate('/dashboard');
+          return;
+        }
+
+        // If user is authenticated and is admin, fetch profile
         const data = await getUserProfile();
         setProfile({
           full_name: data.full_name,
           avatar_img: data.avatar_img
         });
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Error in admin dashboard:', error);
+        navigate('/login');
       }
     };
 
-    fetchProfile();
-  }, []);
+    verifyAndFetchProfile();
+  }, [navigate]);
 
   const handleLogout = async () => {
     try {

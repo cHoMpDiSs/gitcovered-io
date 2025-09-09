@@ -27,6 +27,9 @@ api.interceptors.response.use(
 // Add request interceptor to include JWT token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('jwt_token');
+  console.log('Current path:', config.url);
+  console.log('Token exists:', !!token);
+  
   if (token) {
     // Ensure headers object exists
     config.headers = config.headers || {};
@@ -34,9 +37,13 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
     // Set Content-Type if not already set
     config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json';
+    console.log('Request headers:', config.headers);
+  } else {
+    console.warn('No token found in localStorage');
   }
   return config;
 }, (error) => {
+  console.error('Request interceptor error:', error);
   return Promise.reject(error);
 });
 
