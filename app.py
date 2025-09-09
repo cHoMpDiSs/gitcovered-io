@@ -18,7 +18,7 @@ load_dotenv()
 # This is required for Google OAuth to work with HTTP in development
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='frontend/build/static', static_url_path='/static')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///profiles.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -56,8 +56,15 @@ if not os.path.exists(CLIENT_SECRETS_FILE):
             "client_secret": os.getenv('GOOGLE_CLIENT_SECRET'),
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token",
-            "redirect_uris": ["http://127.0.0.1:5000/login/authorized"],
-            "javascript_origins": ["http://localhost:3000", "http://127.0.0.1:5000"]
+            "redirect_uris": [
+                "http://127.0.0.1:5000/login/authorized",
+                "https://getcovered-io-d59e2aaeeb96.herokuapp.com/login/authorized"
+            ],
+            "javascript_origins": [
+                "http://localhost:3000",
+                "http://127.0.0.1:5000",
+                "https://getcovered-io-d59e2aaeeb96.herokuapp.com"
+            ]
         }
     }
     with open(CLIENT_SECRETS_FILE, 'w') as f:
@@ -88,7 +95,9 @@ class Profile(db.Model):
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
-    if path != "" and os.path.exists(os.path.join('frontend', 'build', path)):
+    if path.startswith("static/"):
+        return app.send_static_file(path[7:])
+    elif path != "" and os.path.exists(os.path.join('frontend', 'build', path)):
         return send_from_directory('frontend/build', path)
     return send_from_directory('frontend/build', 'index.html')
 
