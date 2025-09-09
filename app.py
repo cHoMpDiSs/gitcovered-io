@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request, jsonify
+from flask import Flask, redirect, url_for, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
@@ -32,7 +32,11 @@ jwt = JWTManager(app)
 CORS(app, 
      resources={
          r"/*": {
-             "origins": ["http://localhost:3000"],
+             "origins": [
+                 "http://localhost:3000",
+                 "https://getcovered-io.herokuapp.com",
+                 os.getenv('FRONTEND_URL', '')
+             ],
              "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
              "allow_headers": ["Content-Type", "Authorization"],
              "supports_credentials": True,
@@ -80,9 +84,13 @@ class Profile(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
 
-@app.route('/')
-def index():
-    return 'Welcome to the Flask App with Google OAuth!'
+# Serve React App
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(os.path.join('frontend', 'build', path)):
+        return send_from_directory('frontend/build', path)
+    return send_from_directory('frontend/build', 'index.html')
 
 @app.route('/login')
 def login():

@@ -1,0 +1,37 @@
+{
+  "name": "getcovered-io",
+  "description": "GetCovered.io web application",
+  "repository": "https://github.com/yourusername/getcovered-io",
+  "keywords": ["python", "flask", "react"],
+  "env": {
+    "SECRET_KEY": {
+      "description": "A secret key for Flask application",
+      "generator": "secret"
+    },
+    "JWT_SECRET_KEY": {
+      "description": "A secret key for JWT tokens",
+      "generator": "secret"
+    },
+    "GOOGLE_CLIENT_ID": {
+      "description": "Google OAuth client ID"
+    },
+    "GOOGLE_CLIENT_SECRET": {
+      "description": "Google OAuth client secret"
+    },
+    "FRONTEND_URL": {
+      "description": "URL of the frontend application",
+      "value": "https://getcovered-io.herokuapp.com"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    },
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "python init_db.py"
+  }
+}
