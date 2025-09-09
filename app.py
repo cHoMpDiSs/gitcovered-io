@@ -365,8 +365,15 @@ def auth_status():
     })
 
 # Create tables on startup
-with app.app_context():
-    db.create_all()
+def init_db():
+    with app.app_context():
+        # Check if tables exist
+        inspector = db.inspect(db.engine)
+        tables = inspector.get_table_names()
+        if 'profile' not in tables:
+            db.create_all()
+
+init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
