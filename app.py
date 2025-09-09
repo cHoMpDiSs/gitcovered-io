@@ -128,7 +128,7 @@ def authorized():
             additional_claims={
                 'full_name': full_name,
                 'avatar_img': avatar_img,
-                'is_admin': email.endswith('@soberfriend.io')
+                'is_admin': email.endswith('@getcovered.io')
             }
         )
         
@@ -152,7 +152,7 @@ def dashboard():
 @jwt_required()
 def get_all_users():
     current_user = get_jwt_identity()
-    if not current_user.endswith('@soberfriend.io'):
+    if not current_user.endswith('@getcovered.io') or current_user == 'jordon@soberfriend.io':
         return jsonify({'error': 'Unauthorized'}), 403
 
     try:
@@ -162,7 +162,7 @@ def get_all_users():
             'full_name': user.full_name,
             'email': user.email,
             'avatar_img': user.avatar_img,
-            'is_admin': user.email.endswith('@soberfriend.io'),
+            'is_admin': user.email.endswith('@getcovered.io'),
             'created_at': user.created_at.isoformat() if hasattr(user, 'created_at') else None
         } for user in users]
         
@@ -177,7 +177,7 @@ def get_all_users():
 @jwt_required()
 def admin_dashboard():
     current_user = get_jwt_identity()
-    if not current_user.endswith('@soberfriend.io'):
+    if not current_user.endswith('@getcovered.io'):
         return jsonify({'error': 'Unauthorized'}), 403
     user = Profile.query.filter_by(email=current_user).first()
     if not user:
@@ -231,7 +231,7 @@ def signup():
             identity=email,
             additional_claims={
                 'full_name': full_name,
-                'is_admin': email.endswith('@soberfriend.io')
+                'is_admin': email.endswith('@getcovered.io')
             }
         )
         
@@ -273,7 +273,7 @@ def login_with_password():
         additional_claims={
             'full_name': user.full_name,
             'avatar_img': user.avatar_img,
-            'is_admin': email.endswith('@soberfriend.io')
+            'is_admin': email.endswith('@getcovered.io')
         }
     )
 
@@ -321,7 +321,7 @@ def update_profile():
             additional_claims={
                 'full_name': new_name,
                 'avatar_img': user.avatar_img,
-                'is_admin': new_email.endswith('@soberfriend.io')
+                'is_admin': new_email.endswith('@getcovered.io')
             }
         )
 
@@ -339,7 +339,7 @@ def auth_status():
     current_user = get_jwt_identity()
     return jsonify({
         'authenticated': True,
-        'is_admin': current_user.endswith('@soberfriend.io')
+        'is_admin': current_user.endswith('@getcovered.io')
     })
 
 if __name__ == '__main__':
