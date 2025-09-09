@@ -25,14 +25,26 @@ const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
+      localStorage.removeItem('jwt_token');
       navigate('/login');
     }
   };
 
   useEffect(() => {
     const checkUserAndFetch = async () => {
+      const token = localStorage.getItem('jwt_token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
       try {
         const auth = await checkAuthStatus();
+        if (!auth.authenticated) {
+          localStorage.removeItem('jwt_token');
+          navigate('/login');
+          return;
+        }
         if (auth.is_admin) {
           navigate('/admin/dashboard');
           return;
@@ -40,6 +52,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
         fetchProfile();
       } catch (error) {
         console.error('Error checking auth status:', error);
+        localStorage.removeItem('jwt_token');
         navigate('/login');
       }
     };
