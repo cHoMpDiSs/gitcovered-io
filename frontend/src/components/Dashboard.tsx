@@ -1,13 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate, NavigateFunction } from 'react-router-dom';
 import { Theme, Flex, Text, Box, Container, Avatar, Button, Tabs } from '@radix-ui/themes';
 import { getUserProfile, logout, checkAuthStatus } from '../services/api';
 import Settings from './Settings';
 import '@radix-ui/themes/styles.css';
-
-interface DashboardProps {
-  isAdmin?: boolean;
-}
 
 interface UserProfile {
   full_name: string;
@@ -15,50 +11,50 @@ interface UserProfile {
   avatar_img: string;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
+const Dashboard: React.FC = (): JSX.Element => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const navigate = useNavigate();
 
-  const fetchProfile = async () => {
-    try {
-      const data = await getUserProfile();
-      setProfile(data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      localStorage.removeItem('jwt_token');
-      navigate('/login');
-    }
-  };
-
-  useEffect(() => {
-    const checkUserAndFetch = async () => {
-      const token = localStorage.getItem('jwt_token');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
+  const verifyAndFetchProfile = useCallback(async () => {
       try {
+        // First check if token exists
+        const token = localStorage.getItem('jwt_token');
+        if (!token) {
+          console.error('No token found');
+          navigate('/login');
+          return;
+        }
+
+        // Check authentication status
         const auth = await checkAuthStatus();
         if (!auth.authenticated) {
+          console.error('User is not authenticated');
           localStorage.removeItem('jwt_token');
           navigate('/login');
           return;
         }
+
+        // If user is admin, redirect to admin dashboard
         if (auth.is_admin) {
+          console.log('User is admin, redirecting to admin dashboard');
           navigate('/admin/dashboard');
           return;
         }
-        fetchProfile();
+
+        // If user is authenticated and not admin, fetch profile
+        const data = await getUserProfile();
+        setProfile(data);
       } catch (error) {
-        console.error('Error checking auth status:', error);
+        console.error('Error in dashboard:', error);
         localStorage.removeItem('jwt_token');
         navigate('/login');
       }
     };
-
-    checkUserAndFetch();
   }, [navigate]);
+
+  useEffect(() => {
+    verifyAndFetchProfile();
+  }, [verifyAndFetchProfile]);
 
   const handleLogout = async () => {
     try {
@@ -135,12 +131,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
             <Box className="bg-white p-8 rounded-lg shadow-sm">
               <Flex direction="column" gap="3">
                 <Text size="8" weight="bold" className="break-words">
-                  {isAdmin ? 'Admin Dashboard' : 'Welcome Back'}
+                  Welcome Back
                 </Text>
                 <Text size="3" color="gray" className="break-words max-w-2xl">
-                  {isAdmin 
-                    ? 'Manage your organization and users from here.'
-                    : 'View and manage your coverage details below.'}
+                  View and manage your coverage details below.
                 </Text>
               </Flex>
             </Box>
@@ -195,23 +189,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
               </Flex>
             </Box>
 
-            {/* Admin Only Section */}
-            {isAdmin && (
-              <Box className="bg-white p-8 rounded-lg shadow-sm">
-                <Text size="5" weight="bold" mb="6">
-                  Administrative Controls
-                </Text>
-                <Flex gap="4" wrap="wrap">
-                  <Button variant="soft" className="px-6 py-3">Manage Users</Button>
-                  <Button variant="soft" className="px-6 py-3">View Reports</Button>
-                  <Button variant="soft" className="px-6 py-3">System Settings</Button>
-                </Flex>
-              </Box>
-            )}
           </Flex>
               </Tabs.Content>
               <Tabs.Content value="settings">
-                <Settings onProfileUpdate={fetchProfile} />
+                <Settings onProfileUpdate={() => verifyAndFetchProfile()} />
               </Tabs.Content>
             </Box>
           </Tabs.Root>
