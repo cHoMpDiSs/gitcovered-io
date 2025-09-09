@@ -19,7 +19,7 @@ load_dotenv()
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 app = Flask(__name__, static_folder='frontend/build/static', static_url_path='/static')
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'demo-secret-key')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/profiles.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
