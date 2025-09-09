@@ -360,7 +360,9 @@ def auth_status():
         'is_admin': current_user.endswith('@getcovered.io') or current_user == 'jordon@soberfriend.io'
     })
 
+# Create tables on startup
+with app.app_context():
+    db.create_all()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
