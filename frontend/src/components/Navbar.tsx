@@ -16,22 +16,22 @@ const Navbar: React.FC = () => {
         >
           <div
             onClick={() => navigate('/')}
-            className="text-xl font-bold text-blue-600 cursor-pointer"
+            className="text-2xl font-bold text-blue-600 cursor-pointer ml-4 tracking-tight hover:text-blue-700 transition-colors"
           >
-            GetCovered.io
+            SoberFriend.io
           </div>
 
-          <Flex gap="4">
+          <Flex gap="4" className="mr-4">
             <Button
               variant="soft"
               onClick={() => navigate('/login')}
-              className="bg-gray-100 hover:bg-gray-200"
+              className="bg-gray-100 hover:bg-gray-200 px-4"
             >
               Sign In
             </Button>
             <Button
               onClick={() => navigate('/signup')}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 px-4"
             >
               Get Started
             </Button>

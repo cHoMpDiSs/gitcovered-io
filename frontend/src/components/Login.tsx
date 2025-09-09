@@ -1,11 +1,31 @@
-import React from 'react';
-import { Theme, Flex, Text, Button, Box } from '@radix-ui/themes';
+import React, { useState } from 'react';
+import { Theme, Flex, Text, Button, Box, TextField } from '@radix-ui/themes';
 import { useNavigate } from 'react-router-dom';
-import { loginWithGoogle } from '../services/api';
+import { loginWithGoogle, loginWithEmail } from '../services/api';
+import toast from 'react-hot-toast';
 import '@radix-ui/themes/styles.css';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      await loginWithEmail(email, password);
+      toast.success('Successfully logged in!');
+      navigate('/dashboard');
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || 'Failed to log in';
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Theme appearance="light" accentColor="blue" radius="medium">
@@ -46,9 +66,51 @@ const Login: React.FC = () => {
                   </Text>
                 </Flex>
 
+                {/* Email Login Form */}
+                <form onSubmit={handleEmailLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <TextField.Root>
+                      <TextField.Input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </TextField.Root>
+                    <TextField.Root>
+                      <TextField.Input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                      />
+                    </TextField.Root>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    {isLoading ? 'Signing in...' : 'Sign in'}
+                  </Button>
+                </form>
+
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                  </div>
+                </div>
+
                 {/* Google Sign In Button */}
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <button
+                    type="button"
                     onClick={loginWithGoogle}
                     className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                   >

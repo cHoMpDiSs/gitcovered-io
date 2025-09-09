@@ -1,79 +1,108 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getUserProfile, logout } from '../services/api';
+import { Theme, Flex, Text, Box, Table, Avatar } from '@radix-ui/themes';
+import { getAdminUsers } from '../services/api';
+import toast from 'react-hot-toast';
 
-interface UserProfile {
+interface User {
+  id: number;
   full_name: string;
   email: string;
   avatar_img: string;
+  is_admin: boolean;
+  created_at: string;
+  last_login: string;
 }
 
 const AdminDashboard: React.FC = () => {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const navigate = useNavigate();
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchUsers = async () => {
       try {
-        const data = await getUserProfile();
-        if (!data.email.endsWith('@getcovered.io')) {
-          navigate('/dashboard');
-          return;
-        }
-        setProfile(data);
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-        navigate('/login');
+        const data = await getAdminUsers();
+        setUsers(data.users);
+      } catch (error: any) {
+        toast.error(error.response?.data?.error || 'Failed to fetch users');
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchProfile();
-  }, [navigate]);
+    fetchUsers();
+  }, []);
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
-
-  if (!profile) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <Theme>
+        <Box className="p-8">
+          <Text>Loading users...</Text>
+        </Box>
+      </Theme>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-semibold">Admin Dashboard</h1>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm text-red-600 hover:text-red-700"
-          >
-            Logout
-          </button>
-        </div>
-      </nav>
+    <Theme>
+      <Box className="p-8">
+        <Flex direction="column" gap="6">
+          <Flex justify="between" align="center">
+            <Text size="8" weight="bold">User Management</Text>
+            <Text size="3" color="gray">Total Users: {users.length}</Text>
+          </Flex>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="flex items-center space-x-4">
-            <img
-              src={profile.avatar_img}
-              alt={profile.full_name}
-              className="h-12 w-12 rounded-full"
-            />
-            <div>
-              <h2 className="text-xl font-medium text-gray-900">{profile.full_name}</h2>
-              <p className="text-gray-500">{profile.email}</p>
-              <p className="text-green-600 font-medium">Admin Access</p>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+          <Box className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <Table.Root>
+              <Table.Header>
+                <Table.Row>
+                  <Table.ColumnHeaderCell>User</Table.ColumnHeaderCell>
+                  <Table.ColumnHeaderCell>Email</Table.ColumnHeaderCell>
+                  <Table.ColumnHeaderCell>Role</Table.ColumnHeaderCell>
+                  <Table.ColumnHeaderCell>Joined</Table.ColumnHeaderCell>
+                  <Table.ColumnHeaderCell>Last Login</Table.ColumnHeaderCell>
+                </Table.Row>
+              </Table.Header>
+
+              <Table.Body>
+                {users.map((user) => (
+                  <Table.Row key={user.id}>
+                    <Table.Cell>
+                      <Flex align="center" gap="3">
+                        <Avatar
+                          size="2"
+                          src={user.avatar_img}
+                          fallback={user.full_name[0]}
+                          radius="full"
+                        />
+                        <Text>{user.full_name}</Text>
+                      </Flex>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Text>{user.email}</Text>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Text color={user.is_admin ? "blue" : "gray"}>
+                        {user.is_admin ? 'Admin' : 'User'}
+                      </Text>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Text color="gray">
+                        {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+                      </Text>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Text color="gray">
+                        {user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never'}
+                      </Text>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table.Root>
+          </Box>
+        </Flex>
+      </Box>
+    </Theme>
   );
 };
 
