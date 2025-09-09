@@ -1,4 +1,5 @@
 from flask import Flask, redirect, url_for, session, request, jsonify
+from flask_cors import CORS
 from authlib.integrations.flask_client import OAuth
 from flask_sqlalchemy import SQLAlchemy
 import os
@@ -8,6 +9,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+# Enable CORS for the React frontend
+CORS(app, supports_credentials=True, origins=['http://localhost:3000'])
+
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///profiles.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -32,7 +36,7 @@ google = oauth.register(
 db = SQLAlchemy(app)
 
 class Profile(db.Model):
-    __tablename__ = 'profile'  # Explicitly set the table name
+    __tablename__ = 'profile'
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(100))
     email = db.Column(db.String(100), unique=True)
@@ -84,8 +88,8 @@ def authorized():
         
         # Redirect based on email domain
         if email.endswith('@getcovered.io'):
-            return redirect(url_for('admin_dashboard'))
-        return redirect(url_for('dashboard'))
+            return redirect('http://localhost:3000/admin/dashboard')
+        return redirect('http://localhost:3000/dashboard')
         
     except Exception as e:
         print("Authorization Error:", str(e))  # Debug print
@@ -94,17 +98,18 @@ def authorized():
 @app.route('/dashboard')
 def dashboard():
     if 'email' not in session:
-        return redirect(url_for('login'))
+        return jsonify({'error': 'Not authenticated'}), 401
     user = Profile.query.filter_by(email=session['email']).first()
     return jsonify(full_name=user.full_name, email=user.email, avatar_img=user.avatar_img)
 
 @app.route('/admin/dashboard')
 def admin_dashboard():
     if 'email' not in session or not session['email'].endswith('@getcovered.io'):
-        return redirect(url_for('dashboard'))
-    return 'Welcome to the admin dashboard!'
+        return jsonify({'error': 'Unauthorized'}), 403
+    user = Profile.query.filter_by(email=session['email']).first()
+    return jsonify(full_name=user.full_name, email=user.email, avatar_img=user.avatar_img)
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Create tables within app context
+        db.create_all()
     app.run(debug=True)

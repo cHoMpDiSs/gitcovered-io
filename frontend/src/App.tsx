@@ -1,18 +1,21 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
-import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
+import AdminDashboard from './components/AdminDashboard';
+import './App.css';
 
 function App() {
   return (
     <Router>
-      <Switch>
-        <Route path="/login" component={Login} />
-        <Route path="/signup" component={Signup} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/admin/dashboard" component={Dashboard} />
-      </Switch>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        </Routes>
+      </div>
     </Router>
   );
 }
