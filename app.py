@@ -367,11 +367,13 @@ def auth_status():
 # Create tables on startup
 def init_db():
     with app.app_context():
-        # Check if tables exist
-        inspector = db.inspect(db.engine)
-        tables = inspector.get_table_names()
-        if 'profile' not in tables:
+        try:
+            # Drop all tables first
+            db.drop_all()
+            # Then create them again
             db.create_all()
+        except Exception as e:
+            print(f"Database initialization error: {e}")
 
 init_db()
 
