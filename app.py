@@ -32,11 +32,11 @@ jwt = JWTManager(app)
 CORS(app, 
      resources={
          r"/*": {
-             "origins": [
-                 "http://localhost:3000",
-                 "https://getcovered-io.herokuapp.com",
-                 os.getenv('FRONTEND_URL', '')
-             ],
+"origins": [
+                "http://localhost:3000",
+                "https://getcovered-io-d59e2aaeeb96.herokuapp.com",
+                os.getenv('FRONTEND_URL', '')
+            ],
              "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
              "allow_headers": ["Content-Type", "Authorization"],
              "supports_credentials": True,
