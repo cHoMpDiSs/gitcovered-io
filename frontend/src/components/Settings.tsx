@@ -69,7 +69,7 @@ const Settings: React.FC<SettingsProps> = ({ onProfileUpdate }) => {
     try {
       setIsLoggingOut(true);
       await logout();
-      window.location.href = '/login';
+      window.location.href = '/signin';
     } catch (error) {
       toast.error('Failed to log out');
     } finally {

@@ -19,11 +19,11 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       const reqUrl: string = error.config?.url || '';
       const isAuthAttempt = ['/api/login/password', '/api/signup', '/login'].some(p => reqUrl.includes(p));
-      const isOnAuthPage = ['/login', '/signup'].includes(window.location.pathname);
+      const isOnAuthPage = ['/login', '/signin', '/signup'].includes(window.location.pathname);
 
       if (!isAuthAttempt && !isOnAuthPage) {
         localStorage.removeItem('jwt_token');
-        window.location.href = '/login';
+        window.location.href = '/signin';
         return; // stop further processing since we're navigating
       }
     }
@@ -45,7 +45,7 @@ api.interceptors.request.use((config) => {
     // If no token exists, check if we're on a protected route and redirect to login
     const protectedRoutes = ['/api/dashboard', '/api/admin/dashboard', '/api/profile', '/api/auth/status'];
     if (protectedRoutes.some(route => config.url?.includes(route))) {
-      window.location.href = '/login';
+      window.location.href = '/signin';
     }
   }
   
