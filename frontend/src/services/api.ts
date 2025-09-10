@@ -124,7 +124,6 @@ export const getAdminProfile = async () => {
 
 export const logout = () => {
   localStorage.removeItem('jwt_token');
-  window.location.href = '/login';
 };
 
 export const getAdminUsers = async () => {

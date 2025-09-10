@@ -69,6 +69,7 @@ const Settings: React.FC<SettingsProps> = ({ onProfileUpdate }) => {
     try {
       setIsLoggingOut(true);
       await logout();
+      window.location.href = '/login';
     } catch (error) {
       toast.error('Failed to log out');
     } finally {
@@ -181,6 +182,7 @@ const Settings: React.FC<SettingsProps> = ({ onProfileUpdate }) => {
                       await deleteMyAccount();
                       toast.success('Account deleted');
                       await logout();
+                      window.location.href = '/signup';
                     } catch (error: any) {
                       toast.error(error.response?.data?.error || 'Failed to delete account');
                     }
