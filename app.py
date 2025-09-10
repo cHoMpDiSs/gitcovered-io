@@ -1,6 +1,7 @@
 from flask import Flask, redirect, url_for, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 import os
 from dotenv import load_dotenv
@@ -129,7 +130,8 @@ class Profile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(100))
     email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
+    # Password hashes from Werkzeug/pbkdf2 can exceed 100 chars on Postgres
+    password = db.Column(db.String(255))
     avatar_img = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
@@ -507,6 +509,14 @@ def init_db():
         try:
             # Create tables if they do not exist (idempotent)
             db.create_all()
+            # On Postgres, widen password column if needed (from VARCHAR(100) to 255)
+            try:
+                if app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgresql://'):
+                    with db.engine.begin() as conn:
+                        conn.execute(text("ALTER TABLE profile ALTER COLUMN password TYPE VARCHAR(255)"))
+            except Exception as e:
+                # Ignore if already widened or table doesn't exist yet
+                pass
         except Exception as e:
             print(f"Database initialization error: {e}")
 
