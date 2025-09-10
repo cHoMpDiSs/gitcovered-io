@@ -150,6 +150,15 @@ Decisions:
 
 ![Admin User List](docs/images/userlist.png)
 
+### Avatar handling
+
+<img src="docs/images/avatar.png" alt="Avatar update in Settings" width="700" />
+
+How it works:
+- On Google OAuth sign-in, the profile picture URL from Google (`picture`) is stored as `avatar_img` in the `profile` record. If a user already exists without an avatar, it is backfilled.
+- In Settings, users can paste an Avatar URL and save. The backend validates `http(s)` and updates `avatar_img` via `PUT /api/profile` (partial update), then returns a refreshed JWT with the new claims.
+- Both dashboards pass an `onProfileUpdate` callback to Settings that refetches profile data after a successful save, so the header avatar updates immediately without a full page reload.
+
 ## Local Seeding (optional)
 
 `init_db.py` seeds an admin user `admin@getcovered.io`. You can also run `add_dummy_users.py` to add sample users.
