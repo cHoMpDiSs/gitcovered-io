@@ -136,6 +136,20 @@ Decisions:
 - Home page enter animations and staggered feature cards
 - Dashboard welcome greeting always visible; avatar on the far right
 
+## Screenshots
+
+![Splash](docs/images/splash.png)
+
+![Sign In](docs/images/signin.png)
+
+![Sign Up](docs/images/signup.png)
+
+![User Dashboard (Mobile)](docs/images/mobiledash.png)
+
+![Settings](docs/images/settings.png)
+
+![Admin User List](docs/images/userlist.png)
+
 ## Local Seeding (optional)
 
 `init_db.py` seeds an admin user `admin@getcovered.io`. You can also run `add_dummy_users.py` to add sample users.
