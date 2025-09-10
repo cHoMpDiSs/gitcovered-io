@@ -144,7 +144,7 @@ Decisions:
 
 ![Sign Up](docs/images/signup.png)
 
-![User Dashboard (Mobile)](docs/images/mobiledash.png)
+<img src="docs/images/mobiledash.png" alt="User Dashboard (Mobile)" width="320" />
 
 ![Settings](docs/images/settings.png)
 
