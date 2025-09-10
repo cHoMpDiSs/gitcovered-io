@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Theme, Flex, Text, Button, Box, TextField } from '@radix-ui/themes';
 import { useNavigate } from 'react-router-dom';
 import { loginWithGoogle, loginWithEmail } from '../services/api';
@@ -10,6 +10,19 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const error = url.searchParams.get('error');
+    const shownKey = 'domain_error_shown';
+    const alreadyShown = sessionStorage.getItem(shownKey) === '1';
+    if (error === 'domain_restricted' && !alreadyShown) {
+      toast.error('Signups are restricted to getcovered.io emails');
+      sessionStorage.setItem(shownKey, '1');
+      url.searchParams.delete('error');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();

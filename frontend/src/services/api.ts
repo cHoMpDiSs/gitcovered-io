@@ -17,8 +17,15 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('jwt_token');
-      window.location.href = '/login';
+      const reqUrl: string = error.config?.url || '';
+      const isAuthAttempt = ['/api/login/password', '/api/signup', '/login'].some(p => reqUrl.includes(p));
+      const isOnAuthPage = ['/login', '/signup'].includes(window.location.pathname);
+
+      if (!isAuthAttempt && !isOnAuthPage) {
+        localStorage.removeItem('jwt_token');
+        window.location.href = '/login';
+        return; // stop further processing since we're navigating
+      }
     }
     return Promise.reject(error);
   }
@@ -105,6 +112,16 @@ export const getUserProfile = async () => {
   }
 };
 
+export const getAdminProfile = async () => {
+  try {
+    const response = await api.get('/api/admin/dashboard');
+    return response.data;
+  } catch (error) {
+    console.error('Get admin profile error:', error);
+    throw error;
+  }
+};
+
 export const logout = () => {
   localStorage.removeItem('jwt_token');
   window.location.href = '/login';
@@ -120,17 +137,43 @@ export const getAdminUsers = async () => {
   }
 };
 
-export const updateProfile = async (data: { fullName: string; email: string }) => {
+export const deleteUser = async (userId: number) => {
   try {
-    const response = await api.put('/api/profile', {
-      full_name: data.fullName,
+    const response = await api.delete(`/api/admin/users/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Delete user error:', error);
+    throw error;
+  }
+};
+
+export const updateProfile = async (data: { fullName?: string; email: string; avatarUrl?: string }) => {
+  try {
+    const body: any = {
       email: data.email
-    });
+    };
+    if (typeof data.fullName === 'string') {
+      body.full_name = data.fullName;
+    }
+    if (data.avatarUrl) {
+      body.avatar_img = data.avatarUrl;
+    }
+    const response = await api.put('/api/profile', body);
     const { token } = response.data;
     localStorage.setItem('jwt_token', token);
     return response.data;
   } catch (error) {
     console.error('Update profile error:', error);
+    throw error;
+  }
+};
+
+export const deleteMyAccount = async () => {
+  try {
+    const response = await api.delete('/api/account');
+    return response.data;
+  } catch (error) {
+    console.error('Delete my account error:', error);
     throw error;
   }
 };

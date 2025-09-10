@@ -39,11 +39,7 @@ dummy_users = [
         'email': 'jtaylor@example.com',
         'avatar_img': 'https://ui-avatars.com/api/?name=James+Taylor'
     },
-    {
-        'full_name': 'Admin User',
-        'email': 'admin@getcovered.io',
-        'avatar_img': 'https://ui-avatars.com/api/?name=Admin+User'
-    },
+ 
     {
         'full_name': 'Test User',
         'email': 'test@getcovered.io',

@@ -9,10 +9,10 @@ with app.app_context():
 
     # Create initial admin user
     admin = Profile(
-        full_name='Jordon Marchesano',
-        email='jordon@soberfriend.io',
+        full_name='Admin User',
+        email='admin@getcovered.io',
         password=generate_password_hash('password123', method='pbkdf2:sha256'),
-        avatar_img='https://ui-avatars.com/api/?name=Jordon+Marchesano',
+        avatar_img='https://ui-avatars.com/api/?name=Admin+User',
         created_at=datetime.utcnow(),
         last_login=datetime.utcnow()
     )

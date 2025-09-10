@@ -1,7 +1,7 @@
 import React from 'react';
 import { Theme, Flex, Text, Box, Table, Avatar, Tabs, Button } from '@radix-ui/themes';
 import { useNavigate } from 'react-router-dom';
-import { logout, getUserProfile, checkAuthStatus } from '../services/api';
+import { logout, getAdminProfile, checkAuthStatus } from '../services/api';
 import Settings from './Settings';
 
 interface User {
@@ -29,7 +29,7 @@ const AdminDashboard: React.FC = () => {
         return;
       }
 
-      const data = await getUserProfile();
+      const data = await getAdminProfile();
       
       // Handle backend redirects
       if (data.redirect) {
@@ -63,24 +63,7 @@ const AdminDashboard: React.FC = () => {
   // Hardcoded users data
   const users: User[] = [
     {
-      id: 1,
-      full_name: 'Jordon Marchesano',
-      email: 'jordon@soberfriend.io',
-      avatar_img: 'https://ui-avatars.com/api/?name=Jordon+Marchesano',
-      is_admin: true,
-      created_at: '2025-08-01T09:30:00Z',
-      last_login: '2025-09-09T15:00:00Z'
-    },
-    {
-      id: 2,
-      full_name: 'Admin User',
-      email: 'admin@getcovered.io',
-      avatar_img: 'https://ui-avatars.com/api/?name=Admin+User',
-      is_admin: true,
-      created_at: '2025-08-02T10:00:00Z',
-      last_login: '2025-09-09T14:30:00Z'
-    },
-    {
+    
       id: 3,
       full_name: 'John Smith',
       email: 'john.smith@example.com',
@@ -160,32 +143,28 @@ const AdminDashboard: React.FC = () => {
         <Flex direction="column" gap="6">
           {/* Greeting Section */}
           <Box className="bg-white p-6 md:p-8 rounded-lg shadow-sm">
-            <Flex justify="between" align="center">
+            <Flex className="flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <Flex align="center" gap="4">
                 <Avatar
                   size="6"
                   src={profile.avatar_img || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name)}`}
-                  fallback={profile.full_name[0]}
+                  fallback={profile.full_name ? profile.full_name.charAt(0).toUpperCase() : '?'}
                   radius="full"
                   className="border-2 border-blue-200"
                 />
                 <Text size="6" weight="bold" className="text-blue-600 md:text-[2.5rem]">
-                  Welcome, {profile.full_name.split(' ')[0]}!
+                  {(() => {
+                    const first = (profile.full_name || '').trim().split(' ')[0] || 'there';
+                    return `Welcome, ${first.charAt(0).toUpperCase()}${first.slice(1)}!`;
+                  })()}
                 </Text>
               </Flex>
-              <Button 
-                color="red" 
-                variant="soft" 
-                onClick={handleLogout}
-                className="px-4 py-2 mr-4"
-              >
-                Logout
-              </Button>
+              {/* Logout moved to Settings */}
             </Flex>
           </Box>
 
           {/* Tabs */}
-          <Tabs.Root defaultValue="users">
+          <Tabs.Root defaultValue="settings">
             <Tabs.List>
               <Tabs.Trigger value="users">Users</Tabs.Trigger>
               <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
@@ -216,7 +195,7 @@ const AdminDashboard: React.FC = () => {
                                 <Avatar
                                   size="2"
                                   src={user.avatar_img}
-                                  fallback={user.full_name[0]}
+                                  fallback={user.full_name ? user.full_name.charAt(0).toUpperCase() : '?'}
                                   radius="full"
                                 />
                                 <Text>{user.full_name}</Text>
@@ -268,7 +247,7 @@ const AdminDashboard: React.FC = () => {
                               <Avatar
                                 size="3"
                                 src={user.avatar_img}
-                                fallback={user.full_name[0]}
+                                fallback={user.full_name ? user.full_name.charAt(0).toUpperCase() : '?'}
                                 radius="full"
                               />
                               <div>

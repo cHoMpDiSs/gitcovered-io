@@ -29,12 +29,14 @@ const Navbar: React.FC = () => {
             >
               Sign In
             </Button>
-            <Button
-              onClick={() => navigate('/signup')}
-              className="bg-blue-600 hover:bg-blue-700 px-4"
-            >
-              Get Started
-            </Button>
+            <div className="hidden md:block">
+              <Button
+                onClick={() => navigate('/signup')}
+                className="bg-blue-600 hover:bg-blue-700 px-4"
+              >
+                Get Started
+              </Button>
+            </div>
           </Flex>
         </Flex>
       </div>

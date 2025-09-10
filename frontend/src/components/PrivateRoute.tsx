@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { checkAuthStatus } from '../services/api';
 import toast from 'react-hot-toast';
@@ -13,6 +13,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requireAdmin = fa
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
+  const adminDeniedToastShown = useRef(false);
 
   useEffect(() => {
     const verifyAccess = async () => {
@@ -40,6 +41,20 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requireAdmin = fa
     verifyAccess();
   }, []);
 
+  // Show admin-only denial toast once
+  useEffect(() => {
+    if (
+      !isLoading &&
+      isAuthenticated &&
+      requireAdmin &&
+      !isAdmin &&
+      !adminDeniedToastShown.current
+    ) {
+      adminDeniedToastShown.current = true;
+      toast.error('You do not have permission to access this page');
+    }
+  }, [isLoading, isAuthenticated, isAdmin, requireAdmin]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -53,7 +68,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requireAdmin = fa
   }
 
   if (requireAdmin && !isAdmin) {
-    toast.error('You do not have permission to access this page');
     return <Navigate to="/dashboard" replace />;
   }
 

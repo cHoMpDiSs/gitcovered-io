@@ -68,36 +68,22 @@ const Dashboard = (): JSX.Element => {
         {/* Header */}
         <Box className="bg-white border-b border-gray-200">
           <Container size="4">
-            <Flex justify="between" align="center" py="4">
+            <Flex className="w-full flex-row items-center justify-between gap-4" py="4">
               <div
                 onClick={() => navigate('/')}
                 className="text-2xl font-bold text-blue-600 cursor-pointer ml-4 tracking-tight hover:text-blue-700 transition-colors"
               >
                 GetCovered.io
               </div>
-              <Flex gap="4" align="center">
-                <Flex gap="2" align="center">
-                  <Avatar
-                    size="4"
-                    src={profile.avatar_img}
-                    fallback={profile.full_name[0]}
-                    radius="full"
-                    className="border-2 border-gray-200"
-                  />
-                  <Box>
-                    <Text size="2" weight="bold">
-                      {profile.full_name}
-                    </Text>
-                  </Box>
-                </Flex>
-                <Button
-                  variant="soft"
-                  color="gray"
-                  onClick={handleLogout}
-                  className="mr-4"
-                >
-                  Logout
-                </Button>
+              <Flex gap="4" align="center" className="ml-auto mr-4 sm:mr-6">
+                <Avatar
+                  size="4"
+                  src={profile.avatar_img}
+                  fallback={profile.full_name ? profile.full_name.charAt(0).toUpperCase() : '?'}
+                  radius="full"
+                  className="border-2 border-gray-200"
+                />
+                {/* Logout moved to Settings */}
               </Flex>
             </Flex>
           </Container>
@@ -105,7 +91,23 @@ const Dashboard = (): JSX.Element => {
 
         {/* Main Content */}
         <Container size="4" className="py-8">
-          <Tabs.Root defaultValue="overview">
+          {/* Persistent Welcome Section above tabs */}
+          <Box className="bg-white p-8 rounded-lg shadow-sm mb-6">
+            <Flex direction="column" gap="3">
+              <Text size="8" weight="bold" className="break-words">
+                {(() => {
+                  const first = (profile.full_name || '').trim().split(' ')[0] || 'there';
+                  const formatted = first ? first.charAt(0).toUpperCase() + first.slice(1) : 'there';
+                  return `Welcome ${formatted}!`;
+                })()}
+              </Text>
+              <Text size="3" color="gray" className="break-words max-w-2xl">
+                View and manage your coverage details below.
+              </Text>
+            </Flex>
+          </Box>
+
+          <Tabs.Root defaultValue="settings">
             <Tabs.List>
               <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
               <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
@@ -114,18 +116,6 @@ const Dashboard = (): JSX.Element => {
             <Box className="mt-6">
               <Tabs.Content value="overview">
                 <Flex direction="column" gap="6">
-                  {/* Welcome Section */}
-            <Box className="bg-white p-8 rounded-lg shadow-sm">
-              <Flex direction="column" gap="3">
-                <Text size="8" weight="bold" className="break-words">
-                  Welcome Back
-                </Text>
-                <Text size="3" color="gray" className="break-words max-w-2xl">
-                  View and manage your coverage details below.
-                </Text>
-              </Flex>
-            </Box>
-
             {/* Stats Grid */}
             <Flex gap="4" wrap="wrap">
               {[

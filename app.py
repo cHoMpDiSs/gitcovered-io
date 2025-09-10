@@ -164,8 +164,13 @@ def authorized():
         full_name = id_info['name']
         avatar_img = id_info.get('picture', '')
         
-        # Check if user exists, if not, create a new user
+        # Check if user exists
         user = Profile.query.filter_by(email=email).first()
+        # Enforce domain restriction for NEW signups only
+        if user is None and not email.lower().endswith('@getcovered.io'):
+            frontend_url = 'https://getcovered-io-d59e2aaeeb96.herokuapp.com' if os.getenv('FLASK_ENV') == 'production' else 'http://localhost:3000'
+            return redirect(f'{frontend_url}/login?error=domain_restricted')
+        
         if user is None:
             user = Profile(
                 full_name=full_name,
@@ -175,6 +180,18 @@ def authorized():
             )
             db.session.add(user)
             db.session.commit()
+        else:
+            # Backfill name/avatar and update last_login for existing user
+            updated = False
+            if (not user.full_name) and full_name:
+                user.full_name = full_name
+                updated = True
+            if (not user.avatar_img) and avatar_img:
+                user.avatar_img = avatar_img
+                updated = True
+            user.last_login = datetime.utcnow()
+            if updated:
+                db.session.commit()
         
         # Create JWT token
         access_token = create_access_token(
@@ -182,7 +199,7 @@ def authorized():
             additional_claims={
                 'full_name': full_name,
                 'avatar_img': avatar_img,
-                'is_admin': email.endswith('@getcovered.io') or email == 'jordon@soberfriend.io'
+                'is_admin': email == 'admin@getcovered.io'
             }
         )
         
@@ -204,7 +221,7 @@ def dashboard():
         return jsonify({'error': 'User not found'}), 404
     
     # If user is admin, redirect to admin dashboard
-    if current_user.endswith('@getcovered.io') or current_user == 'jordon@soberfriend.io':
+    if current_user == 'admin@getcovered.io':
         return jsonify({
             'redirect': '/admin/dashboard',
             'is_admin': True
@@ -221,7 +238,7 @@ def dashboard():
 @jwt_required()
 def get_all_users():
     current_user = get_jwt_identity()
-    if not current_user.endswith('@getcovered.io') or current_user == 'jordon@soberfriend.io':
+    if current_user != 'admin@getcovered.io':
         return jsonify({'error': 'Unauthorized'}), 403
 
     try:
@@ -231,7 +248,7 @@ def get_all_users():
             'full_name': user.full_name,
             'email': user.email,
             'avatar_img': user.avatar_img,
-            'is_admin': user.email.endswith('@getcovered.io') or user.email == 'jordon@soberfriend.io',
+            'is_admin': user.email == 'admin@getcovered.io',
             'created_at': user.created_at.isoformat() if user.created_at else None,
             'last_login': user.last_login.isoformat() if user.last_login else None
         } for user in users]
@@ -243,11 +260,57 @@ def get_all_users():
     except Exception as e:
         return jsonify({'error': 'Failed to fetch users'}), 500
 
+@app.route('/api/admin/users/<int:user_id>', methods=['DELETE', 'OPTIONS'])
+@jwt_required()
+def delete_user(user_id):
+    if request.method == 'OPTIONS':
+        return '', 200
+
+    current_user = get_jwt_identity()
+    # Only allow specific admin user
+    if current_user != 'admin@getcovered.io':
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    user = Profile.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    # Prevent deleting own account to avoid accidental lockout
+    if user.email == current_user:
+        return jsonify({'error': 'You cannot delete your own account'}), 400
+
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'message': 'User deleted successfully'}), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete user'}), 500
+
+@app.route('/api/account', methods=['DELETE', 'OPTIONS'], strict_slashes=False)
+@jwt_required()
+def delete_my_account():
+    if request.method == 'OPTIONS':
+        return '', 200
+
+    current_user = get_jwt_identity()
+    user = Profile.query.filter_by(email=current_user).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'message': 'Account deleted successfully'}), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete account'}), 500
+
 @app.route('/api/admin/dashboard')
 @jwt_required()
 def admin_dashboard():
     current_user = get_jwt_identity()
-    if not (current_user.endswith('@getcovered.io') or current_user == 'jordon@soberfriend.io'):
+    if current_user != 'admin@getcovered.io':
         return jsonify({
             'redirect': '/dashboard',
             'error': 'Unauthorized access'
@@ -272,7 +335,7 @@ def signup():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    full_name = data.get('full_name')
+    full_name = (data.get('full_name') or '').strip()
 
     # Validate required fields
     if not email:
@@ -289,6 +352,10 @@ def signup():
     # Validate password strength
     if len(password) < 8:
         return jsonify({'error': 'Password must be at least 8 characters long'}), 400
+
+    # Enforce domain restriction for email signups
+    if not email.lower().endswith('@getcovered.io'):
+        return jsonify({'error': 'Signups are restricted to getcovered.io emails'}), 403
 
     # Check if user already exists
     if Profile.query.filter_by(email=email).first():
@@ -311,7 +378,7 @@ def signup():
             identity=email,
             additional_claims={
                 'full_name': full_name,
-                'is_admin': email.endswith('@getcovered.io') or email == 'jordon@soberfriend.io'
+                'is_admin': email == 'admin@getcovered.io'
             }
         )
         
@@ -353,7 +420,7 @@ def login_with_password():
         additional_claims={
             'full_name': user.full_name,
             'avatar_img': user.avatar_img,
-            'is_admin': email.endswith('@getcovered.io') or email == 'jordon@soberfriend.io'
+            'is_admin': email == 'admin@getcovered.io'
         }
     )
 
@@ -374,34 +441,40 @@ def update_profile():
         return jsonify({'error': 'User not found'}), 404
 
     data = request.get_json()
-    new_email = data.get('email')
+    # Force email to remain unchanged; ignore client-provided email
+    new_email = get_jwt_identity()
     new_name = data.get('full_name')
+    new_avatar = (data.get('avatar_img') or '').strip()
 
-    if not new_email or not new_name:
-        return jsonify({'error': 'Email and full name are required'}), 400
+    # Allow partial updates; full name is optional
 
-    # Validate email format
-    if '@' not in new_email or '.' not in new_email:
-        return jsonify({'error': 'Please enter a valid email address'}), 400
-
-    # Check if new email is already taken by another user
+    # Keep email unchanged; do not allow email updates
     if new_email != current_user:
-        existing_user = Profile.query.filter_by(email=new_email).first()
-        if existing_user:
-            return jsonify({'error': 'This email is already registered'}), 409
+        return jsonify({'error': 'Email updates are not allowed'}), 403
+
+    # Validate avatar URL if provided
+    if new_avatar:
+        lower_avatar = new_avatar.lower()
+        if not (lower_avatar.startswith('http://') or lower_avatar.startswith('https://')):
+            return jsonify({'error': 'Avatar URL must start with http:// or https://'}), 400
+
+    # Skip duplicate email checks since email cannot be changed
 
     try:
         user.email = new_email
-        user.full_name = new_name
+        if new_name:
+            user.full_name = new_name
+        if new_avatar:
+            user.avatar_img = new_avatar
         db.session.commit()
 
         # Create new JWT with updated information
         access_token = create_access_token(
             identity=new_email,
             additional_claims={
-                'full_name': new_name,
+                'full_name': user.full_name,
                 'avatar_img': user.avatar_img,
-                'is_admin': new_email.endswith('@getcovered.io')
+                'is_admin': new_email == 'admin@getcovered.io'
             }
         )
 
@@ -419,7 +492,7 @@ def auth_status():
     current_user = get_jwt_identity()
     return jsonify({
         'authenticated': True,
-        'is_admin': current_user.endswith('@getcovered.io') or current_user == 'jordon@soberfriend.io'
+        'is_admin': current_user == 'admin@getcovered.io'
     })
 
 # Create tables on startup
