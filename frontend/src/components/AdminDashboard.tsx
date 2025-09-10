@@ -20,6 +20,7 @@ const AdminDashboard: React.FC = () => {
     full_name: '',
     avatar_img: null
   });
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   const fetchProfile = React.useCallback(async () => {
     try {
@@ -41,10 +42,12 @@ const AdminDashboard: React.FC = () => {
         full_name: data.full_name,
         avatar_img: data.avatar_img
       });
+      setIsLoading(false);
     } catch (error) {
       console.error('Error in admin dashboard:', error);
       localStorage.removeItem('jwt_token');
       navigate('/login');
+      setIsLoading(false);
     }
   }, [navigate]);
 
@@ -137,6 +140,19 @@ const AdminDashboard: React.FC = () => {
     }
   ];
 
+  if (isLoading) {
+    return (
+      <Theme>
+        <Flex justify="center" align="center" style={{ height: '100vh' }}>
+          <div
+            className="h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"
+            aria-label="Loading"
+          />
+        </Flex>
+      </Theme>
+    );
+  }
+
   return (
     <Theme>
       <Box className="p-8">
@@ -202,7 +218,12 @@ const AdminDashboard: React.FC = () => {
                               </Flex>
                             </Table.Cell>
                             <Table.Cell>
-                              <Text>{user.email}</Text>
+                              <a
+                                href={`mailto:${user.email}`}
+                                className="text-blue-600 hover:underline break-all"
+                              >
+                                {user.email}
+                              </a>
                             </Table.Cell>
                             <Table.Cell>
                               <Text color={user.is_admin ? "blue" : "gray"}>
@@ -252,7 +273,12 @@ const AdminDashboard: React.FC = () => {
                               />
                               <div>
                                 <Text weight="bold">{user.full_name}</Text>
-                                <Text size="2" color="gray">{user.email}</Text>
+                                <a
+                                  href={`mailto:${user.email}`}
+                                  className="text-blue-600 hover:underline break-all text-[12px]"
+                                >
+                                  {user.email}
+                                </a>
                               </div>
                             </Flex>
                             <Flex gap="2" align="center">

@@ -20,7 +20,13 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 app = Flask(__name__, static_folder='frontend/build/static', static_url_path='/static')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'demo-secret-key')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/profiles.db'
+
+# Database configuration: prefer DATABASE_URL (Heroku Postgres), fallback to SQLite
+database_url = os.getenv('DATABASE_URL', 'sqlite:////tmp/profiles.db')
+# Heroku historically provides postgres://, SQLAlchemy expects postgresql://
+if database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # JWT Configuration
@@ -499,9 +505,7 @@ def auth_status():
 def init_db():
     with app.app_context():
         try:
-            # Drop all tables first
-            db.drop_all()
-            # Then create them again
+            # Create tables if they do not exist (idempotent)
             db.create_all()
         except Exception as e:
             print(f"Database initialization error: {e}")
@@ -518,6 +522,7 @@ def add_security_headers(response):
             response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With, Accept, Origin'
     return response
 
+# Ensure tables exist (safe in all envs; does not drop data)
 init_db()
 
 if __name__ == '__main__':
