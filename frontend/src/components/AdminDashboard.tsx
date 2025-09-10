@@ -283,7 +283,7 @@ const AdminDashboard: React.FC = () => {
               </Tabs.Content>
 
               <Tabs.Content value="settings">
-                <Settings />
+                <Settings onProfileUpdate={() => fetchProfile()} />
               </Tabs.Content>
             </Box>
           </Tabs.Root>
