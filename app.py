@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request, jsonify, send_from_directory
+from flask import Flask, redirect, url_for, request, jsonify, send_from_directory, session
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
@@ -16,8 +16,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # Load environment variables from .env file
 load_dotenv()
 
-# This is required for Google OAuth to work with HTTP in development
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+# Allow HTTP only in development for Google OAuth (never in production)
+if os.getenv('FLASK_ENV') != 'production':
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 app = Flask(__name__, static_folder='frontend/build/static', static_url_path='/static')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'demo-secret-key')
@@ -112,14 +113,10 @@ if not os.path.exists(CLIENT_SECRETS_FILE):
     with open(CLIENT_SECRETS_FILE, 'w') as f:
         json.dump(client_config, f)
 
-# OAuth2 Flow
-redirect_uri = 'https://getcovered-io-d59e2aaeeb96.herokuapp.com/login/authorized' if os.getenv('FLASK_ENV') == 'production' else 'http://127.0.0.1:5000/login/authorized'
-
-flow = Flow.from_client_secrets_file(
-    CLIENT_SECRETS_FILE,
-    scopes=['openid', 'https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
-    redirect_uri=redirect_uri
-)
+def _build_redirect_uri():
+    scheme = request.headers.get('X-Forwarded-Proto', request.scheme)
+    host = request.host
+    return f"{scheme}://{host}/login/authorized"
 
 db = SQLAlchemy(app)
 
@@ -148,18 +145,37 @@ def serve(path):
 
 @app.route('/login')
 def login():
+    # Create Flow per request
+    flow = Flow.from_client_secrets_file(
+        CLIENT_SECRETS_FILE,
+        scopes=['openid', 'https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
+        redirect_uri=_build_redirect_uri()
+    )
     authorization_url, state = flow.authorization_url(
         access_type='offline',
         include_granted_scopes='true',
         prompt='consent'
     )
-    print("Redirecting to:", authorization_url)  # Debug print
+    session['oauth_state'] = state
+    session['oauth_redirect_uri'] = flow.redirect_uri
+    print("Redirecting to:", authorization_url)
     return redirect(authorization_url)
 
 @app.route('/login/authorized')
 def authorized():
     try:
-        print("Received callback with URL:", request.url)  # Debug print
+        print("Received callback with URL:", request.url)
+        state = request.args.get('state')
+        if not state or state != session.get('oauth_state'):
+            print('Invalid OAuth state')
+            frontend_url = 'https://getcovered-io-d59e2aaeeb96.herokuapp.com' if os.getenv('FLASK_ENV') == 'production' else 'http://localhost:3000'
+            return redirect(f'{frontend_url}/signin?error=auth_failed')
+
+        flow = Flow.from_client_secrets_file(
+            CLIENT_SECRETS_FILE,
+            scopes=['openid', 'https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
+            redirect_uri=session.get('oauth_redirect_uri') or _build_redirect_uri()
+        )
         flow.fetch_token(authorization_response=request.url)
         credentials = flow.credentials
         
