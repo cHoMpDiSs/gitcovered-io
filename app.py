@@ -175,9 +175,10 @@ def authorized():
         # Check if user exists
         user = Profile.query.filter_by(email=email).first()
         # Enforce domain restriction for NEW signups only
-        if user is None and not email.lower().endswith('@getcovered.io'):
+        allowed_domains = (email.lower().endswith('@getcovered.io') or email.lower().endswith('@soberfriend.io'))
+        if user is None and not allowed_domains:
             frontend_url = 'https://getcovered-io-d59e2aaeeb96.herokuapp.com' if os.getenv('FLASK_ENV') == 'production' else 'http://localhost:3000'
-            return redirect(f'{frontend_url}/login?error=domain_restricted')
+            return redirect(f'{frontend_url}/signin?error=domain_restricted')
         
         if user is None:
             user = Profile(
@@ -361,9 +362,9 @@ def signup():
     if len(password) < 8:
         return jsonify({'error': 'Password must be at least 8 characters long'}), 400
 
-    # Enforce domain restriction for email signups
-    if not email.lower().endswith('@getcovered.io'):
-        return jsonify({'error': 'Signups are restricted to getcovered.io emails'}), 403
+    # Enforce domain restriction for email signups (allow getcovered.io and soberfriend.io)
+    if not (email.lower().endswith('@getcovered.io') or email.lower().endswith('@soberfriend.io')):
+        return jsonify({'error': 'Signups are restricted to getcovered.io or soberfriend.io emails'}), 403
 
     # Check if user already exists
     if Profile.query.filter_by(email=email).first():

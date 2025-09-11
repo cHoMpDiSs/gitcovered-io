@@ -14,11 +14,9 @@ const Login: React.FC = () => {
   useEffect(() => {
     const url = new URL(window.location.href);
     const error = url.searchParams.get('error');
-    const shownKey = 'domain_error_shown';
-    const alreadyShown = sessionStorage.getItem(shownKey) === '1';
-    if (error === 'domain_restricted' && !alreadyShown) {
-      toast.error('Signups are restricted to getcovered.io emails');
-      sessionStorage.setItem(shownKey, '1');
+    if (error === 'domain_restricted') {
+      toast.error('Sign in is restricted to getcovered.io emails');
+      // Remove the query param immediately so React StrictMode doesn't double-toast
       url.searchParams.delete('error');
       window.history.replaceState({}, '', url.toString());
     }
