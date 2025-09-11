@@ -52,6 +52,7 @@ npm start
 - Root `package.json` runs front‑end build in `heroku-postbuild`
 - React build is served from Flask: catch‑all route serves `frontend/build/index.html`
 - All API endpoints are under `/api/*` so SPA routes like `/dashboard` refresh correctly
+ - Data persistence uses Heroku Postgres (DATABASE_URL), not SQLite. Locally you can also point `DATABASE_URL` to the Heroku Postgres URL with `?sslmode=require` for a shared demo database.
 
 ## Key API Endpoints
 
