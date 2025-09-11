@@ -271,11 +271,11 @@ const AdminDashboard: React.FC = () => {
                                 fallback={user.full_name ? user.full_name.charAt(0).toUpperCase() : '?'}
                                 radius="full"
                               />
-                              <div>
+                              <div className="flex flex-col">
                                 <Text weight="bold">{user.full_name}</Text>
                                 <a
                                   href={`mailto:${user.email}`}
-                                  className="text-blue-600 hover:underline break-all text-[12px]"
+                                  className="text-blue-600 hover:underline break-all text-[12px] mt-1"
                                 >
                                   {user.email}
                                 </a>
