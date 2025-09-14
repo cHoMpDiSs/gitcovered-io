@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate, NavigateFunction } from 'react-router-dom';
-import { Theme, Flex, Text, Box, Container, Avatar, Button, Tabs } from '@radix-ui/themes';
-import { getUserProfile, logout, checkAuthStatus } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { Theme, Flex, Text, Box, Container, Tabs } from '@radix-ui/themes';
+import { getUserProfile } from '../services/api';
 import Settings from './Settings';
 import '@radix-ui/themes/styles.css';
 
@@ -43,15 +43,6 @@ const Dashboard = (): JSX.Element => {
     fetchProfile();
   }, [fetchProfile]);
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
-
   if (!profile) {
     return (
       <Theme>
@@ -68,30 +59,6 @@ const Dashboard = (): JSX.Element => {
   return (
     <Theme appearance="light" accentColor="blue" radius="medium">
       <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <Box className="bg-white border-b border-gray-200">
-          <Container size="4">
-            <Flex className="w-full flex-row items-center justify-between gap-4" py="4">
-              <div
-                onClick={() => navigate('/')}
-                className="text-2xl font-bold text-blue-600 cursor-pointer ml-4 tracking-tight hover:text-blue-700 transition-colors"
-              >
-                GetCovered.io
-              </div>
-              <Flex gap="4" align="center" className="ml-auto mr-4 sm:mr-6">
-                <Avatar
-                  size="4"
-                  src={profile.avatar_img}
-                  fallback={profile.full_name ? profile.full_name.charAt(0).toUpperCase() : '?'}
-                  radius="full"
-                  className="border-2 border-gray-200"
-                />
-                {/* Logout moved to Settings */}
-              </Flex>
-            </Flex>
-          </Container>
-        </Box>
-
         {/* Main Content */}
         <Container size="4" className="py-8">
           {/* Persistent Welcome Section above tabs */}

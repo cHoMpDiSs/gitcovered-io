@@ -80,7 +80,12 @@ const Settings: React.FC<SettingsProps> = ({ onProfileUpdate }) => {
   if (isLoading) {
     return (
       <div className="p-6">
-        <Text>Loading profile...</Text>
+        <div className="min-h-[200px] flex items-center justify-center">
+          <div
+            className="h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"
+            aria-label="Loading"
+          />
+        </div>
       </div>
     );
   }

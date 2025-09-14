@@ -8,7 +8,9 @@ import Dashboard from './components/Dashboard';
 import AdminDashboard from './components/AdminDashboard';
 import AuthCallback from './components/AuthCallback';
 import PrivateRoute from './components/PrivateRoute';
+import Navbar from './components/Navbar';
 import '@radix-ui/themes/styles.css';
+import { Theme } from '@radix-ui/themes';
 
 function App() {
   return (
@@ -42,6 +44,9 @@ function App() {
         }}
       />
       <Router>
+        <Theme appearance="light" accentColor="blue" radius="medium">
+          <Navbar />
+        </Theme>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

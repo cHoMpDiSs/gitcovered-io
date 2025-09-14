@@ -1,7 +1,6 @@
 import React from 'react';
 import { Theme, Button, Flex, Text, Container, Section } from '@radix-ui/themes';
 import { useNavigate } from 'react-router-dom';
-import Navbar from './Navbar';
 import '@radix-ui/themes/styles.css';
 
 const Home: React.FC = () => {
@@ -10,8 +9,6 @@ const Home: React.FC = () => {
   return (
     <Theme appearance="light" accentColor="blue" radius="medium">
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-        <Navbar />
-        
         <main>
           {/* Hero Section */}
           <Section size="3" className="py-20">
