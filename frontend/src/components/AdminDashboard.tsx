@@ -187,7 +187,7 @@ const AdminDashboard: React.FC = () => {
           </Box>
 
           {/* Tabs */}
-          <Tabs.Root defaultValue="settings">
+          <Tabs.Root defaultValue="users">
             <Tabs.List>
               <Tabs.Trigger value="users">Users</Tabs.Trigger>
               <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
@@ -212,7 +212,7 @@ const AdminDashboard: React.FC = () => {
 
                       <Table.Body>
                         {users.map((user) => (
-                          <Table.Row key={user.id}>
+                          <Table.Row key={user.id} className="hover:bg-gray-50 transition-colors">
                             <Table.Cell>
                               <Flex align="center" gap="3">
                                 <Avatar
@@ -269,7 +269,7 @@ const AdminDashboard: React.FC = () => {
                   <div className="block md:hidden">
                     <div className="divide-y divide-gray-200">
                       {users.map((user) => (
-                        <div key={user.id} className="p-4">
+                        <div key={user.id} className="p-4 mx-2">
                           <Flex direction="column" gap="3">
                             <Flex align="center" gap="3">
                               <Avatar

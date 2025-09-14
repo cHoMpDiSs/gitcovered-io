@@ -20,15 +20,15 @@ function App() {
         toastOptions={{
           duration: 4000,
           style: {
-            background: '#363636',
+            background: 'linear-gradient(90deg, #2563eb, #06b6d4)',
             color: '#fff',
             padding: '16px',
             minHeight: '64px',
           },
           success: {
             style: {
-              background: '#4aed88',
-              color: '#000',
+              background: 'linear-gradient(90deg, #2563eb, #06b6d4)',
+              color: '#fff',
               padding: '16px',
               minHeight: '64px',
             },
