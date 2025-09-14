@@ -40,17 +40,25 @@ const Login: React.FC = () => {
 
   return (
     <Theme appearance="light" accentColor="blue" radius="medium">
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center p-4 relative">
+        {/* Decorative background */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 10%, rgba(59,130,246,0.06), transparent 35%), radial-gradient(circle at 80% 90%, rgba(6,182,212,0.06), transparent 35%)' }} />
+          <div className="absolute inset-0 pointer-events-none opacity-[0.3]" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.035) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        </div>
         {/* Card Container - 1/3 width on medium+ screens */}
-        <div className="w-full md:w-1/3 min-w-[320px] max-w-md">
-          <Box className="bg-white rounded-xl shadow-xl overflow-hidden">
+        <div className="w-full md:w-1/3 min-w-[320px] max-w-md px-2 sm:px-0">
+          <Box className="bg-white rounded-2xl shadow-2xl overflow-hidden ring-1 ring-black/5 border border-gray-100">
             {/* Card Header */}
-            <div className="bg-blue-50 px-6 py-4 border-b border-blue-100">
-              <div 
-                onClick={() => navigate('/')}
-                className="text-xl sm:text-2xl font-bold text-blue-600 cursor-pointer text-center"
-              >
-                GetCovered.io
+            <div className="relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 opacity-95" />
+              <div className="relative px-6 py-5">
+                <div 
+                  onClick={() => navigate('/')}
+                  className="text-xl sm:text-2xl font-extrabold text-white cursor-pointer text-center"
+                >
+                  GetCovered.io
+                </div>
               </div>
             </div>
 
@@ -63,7 +71,7 @@ const Login: React.FC = () => {
                     size="5" 
                     weight="bold" 
                     align="center"
-                    className="text-lg sm:text-xl"
+                    className="text-xl"
                   >
                     Sign in to your account
                   </Text>
@@ -103,7 +111,7 @@ const Login: React.FC = () => {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full"
+                    className="w-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/40 transition-all"
                   >
                     {isLoading ? 'Signing in...' : 'Sign in'}
                   </Button>
@@ -123,7 +131,7 @@ const Login: React.FC = () => {
                   <button
                     type="button"
                     onClick={loginWithGoogle}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-gray-200 rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
                   >
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
                       <path
@@ -165,7 +173,7 @@ const Login: React.FC = () => {
                 <Button
                   variant="soft"
                   onClick={() => navigate('/signup')}
-                  className="w-full text-sm sm:text-base py-2"
+                  className="w-full text-sm sm:text-base py-2 backdrop-blur bg-white/70 hover:bg-white/90 border border-gray-200"
                 >
                   Create an account
                 </Button>

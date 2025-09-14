@@ -79,73 +79,125 @@ const Settings: React.FC<SettingsProps> = ({ onProfileUpdate }) => {
 
   if (isLoading) {
     return (
-      <div className="p-6">
-        <Text>Loading profile...</Text>
+      <div className="p-4 sm:p-6">
+        <Box className="max-w-2xl mx-auto">
+          <div className="space-y-6 animate-pulse">
+            <div className="h-7 w-40 bg-gray-200 rounded" />
+
+            <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm">
+              {/* Full Name */}
+              <div className="space-y-2">
+                <div className="h-4 w-24 bg-gray-200 rounded" />
+                <div className="h-10 w-full bg-gray-200 rounded" />
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <div className="h-4 w-28 bg-gray-200 rounded" />
+                <div className="h-10 w-full bg-gray-200 rounded" />
+              </div>
+
+              {/* Avatar URL */}
+              <div className="space-y-2">
+                <div className="h-4 w-28 bg-gray-200 rounded" />
+                <div className="h-10 w-full bg-gray-200 rounded" />
+              </div>
+
+              <div className="h-10 w-36 bg-gray-200 rounded" />
+            </div>
+
+            {/* Session */}
+            <div className="space-y-2">
+              <div className="h-4 w-20 bg-gray-200 rounded" />
+              <div className="h-10 w-full bg-gray-200 rounded" />
+            </div>
+
+            {/* Danger Zone */}
+            <div className="space-y-3">
+              <div className="h-5 w-28 bg-gray-200 rounded" />
+              <div className="h-24 w-full bg-gray-200 rounded" />
+              <div className="h-10 w-40 bg-gray-200 rounded" />
+            </div>
+          </div>
+        </Box>
       </div>
     );
   }
 
   return (
     <Theme appearance="light">
-      <div className="p-6">
-        <Box className="max-w-2xl mx-auto">
+      <div className="p-4 sm:p-6 relative">
+        {/* Decorative background */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 10%, rgba(59,130,246,0.06), transparent 35%), radial-gradient(circle at 80% 90%, rgba(6,182,212,0.06), transparent 35%)' }} />
+          <div className="absolute inset-0 pointer-events-none opacity-[0.3]" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.035) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        </div>
+        <Box className="mx-auto px-2 sm:px-0 max-w-none md:max-w-2xl">
           <Flex direction="column" gap="4">
             <Text size="6" weight="bold">Account Settings</Text>
             
             <form onSubmit={handleUpdateProfile} className="space-y-6">
               <Flex direction="column" gap="4">
-                <div>
+                <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500">
+                  <div className="rounded-2xl bg-white p-4">
                   <label className="block mb-2">
                     <Text size="2" weight="bold">Full Name</Text>
                   </label>
-                  <TextField.Root>
+                  <TextField.Root className="w-full">
                     <TextField.Input
+                      className="w-full"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Enter your full name"
                     />
                   </TextField.Root>
+                  </div>
                 </div>
 
-                <div>
+                <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500">
+                  <div className="rounded-2xl bg-white p-4">
                   <label className="block mb-2">
                     <Text size="2" weight="bold">Email Address</Text>
                   </label>
-                  <TextField.Root>
+                  <TextField.Root className="w-full">
                     <TextField.Input
+                      className="w-full bg-gray-100 cursor-not-allowed"
                       type="email"
                       value={email}
                       readOnly
-                      className="bg-gray-100 cursor-not-allowed"
                     />
                   </TextField.Root>
+                  </div>
                 </div>
 
-                <div>
+                <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500">
+                  <div className="rounded-2xl bg-white p-4">
                   <label className="block mb-2">
                     <Text size="2" weight="bold">Avatar URL</Text>
                   </label>
-                  <TextField.Root>
+                  <TextField.Root className="w-full">
                     <TextField.Input
+                      className="w-full"
                       type="url"
                       value={avatarUrl}
                       onChange={(e) => setAvatarUrl(e.target.value)}
                       placeholder="https://example.com/avatar.png"
                     />
                   </TextField.Root>
+                  </div>
                 </div>
 
                 <Button 
                   type="submit" 
                   disabled={isSaving}
-                  className="mt-4"
+                  className="mt-4 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/40"
                 >
                   {isSaving ? 'Saving Changes...' : 'Save Changes'}
                 </Button>
               </Flex>
             </form>
 
-            <Box className="mt-6">
+            <Box className="mt-4 sm:mt-6">
               <Text size="2" weight="bold" className="mb-2">
                 Session
               </Text>
@@ -154,17 +206,17 @@ const Settings: React.FC<SettingsProps> = ({ onProfileUpdate }) => {
                 color="gray"
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="w-full"
+                className="w-full backdrop-blur bg-white/70 hover:bg-white/90 border border-gray-200"
               >
                 {isLoggingOut ? 'Logging out...' : 'Log out'}
               </Button>
             </Box>
 
-            <Box className="mt-8">
+            <Box className="mt-6 sm:mt-8">
               <Text size="3" weight="bold" className="mb-4">
                 Danger Zone
               </Text>
-              <Box className="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6 flex flex-col">
+              <Box className="bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-6 flex flex-col">
                 <Text size="2" color="red" className="text-sm sm:text-base font-semibold">
                   Delete your account
                 </Text>

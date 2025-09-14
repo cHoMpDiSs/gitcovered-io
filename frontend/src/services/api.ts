@@ -12,6 +12,15 @@ const api = axios.create({
   withCredentials: true
 });
 
+const broadcastTokenChange = (token: string | null) => {
+  try {
+    // Notify app (same tab) that auth token changed
+    window.dispatchEvent(new CustomEvent('auth:token', { detail: token }));
+  } catch (e) {
+    // no-op
+  }
+};
+
 // Add response interceptor to handle 401 errors
 api.interceptors.response.use(
   (response) => response,
@@ -70,6 +79,7 @@ export const signupWithEmail = async (email: string, password: string, fullName:
     });
     const { token } = response.data;
     localStorage.setItem('jwt_token', token);
+    broadcastTokenChange(token);
     return response.data;
   } catch (error) {
     console.error('Signup error:', error);
@@ -85,6 +95,7 @@ export const loginWithEmail = async (email: string, password: string) => {
     });
     const { token } = response.data;
     localStorage.setItem('jwt_token', token);
+    broadcastTokenChange(token);
     return response.data;
   } catch (error) {
     console.error('Login error:', error);
@@ -124,6 +135,7 @@ export const getAdminProfile = async () => {
 
 export const logout = () => {
   localStorage.removeItem('jwt_token');
+  broadcastTokenChange(null);
 };
 
 export const getAdminUsers = async () => {
@@ -160,6 +172,7 @@ export const updateProfile = async (data: { fullName?: string; email: string; av
     const response = await api.put('/api/profile', body);
     const { token } = response.data;
     localStorage.setItem('jwt_token', token);
+    broadcastTokenChange(token);
     return response.data;
   } catch (error) {
     console.error('Update profile error:', error);

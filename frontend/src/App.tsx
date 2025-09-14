@@ -8,7 +8,9 @@ import Dashboard from './components/Dashboard';
 import AdminDashboard from './components/AdminDashboard';
 import AuthCallback from './components/AuthCallback';
 import PrivateRoute from './components/PrivateRoute';
+import Navbar from './components/Navbar';
 import '@radix-ui/themes/styles.css';
+import { Theme } from '@radix-ui/themes';
 
 function App() {
   return (
@@ -18,15 +20,15 @@ function App() {
         toastOptions={{
           duration: 4000,
           style: {
-            background: '#363636',
+            background: 'linear-gradient(90deg, #2563eb, #06b6d4)',
             color: '#fff',
             padding: '16px',
             minHeight: '64px',
           },
           success: {
             style: {
-              background: '#4aed88',
-              color: '#000',
+              background: 'linear-gradient(90deg, #2563eb, #06b6d4)',
+              color: '#fff',
               padding: '16px',
               minHeight: '64px',
             },
@@ -42,6 +44,9 @@ function App() {
         }}
       />
       <Router>
+        <Theme appearance="light" accentColor="blue" radius="medium">
+          <Navbar />
+        </Theme>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
