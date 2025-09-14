@@ -50,7 +50,7 @@ const Home: React.FC = () => {
                   </Text>
 
                   {!isAuthenticated && (
-                    <Flex gap="4" mt="6" align={{ initial: 'center', lg: 'start' }} className="opacity-0 translate-y-2 animate-[fadeInUp_800ms_ease-out_forwards]">
+                    <Flex gap="4" mt="6" align={{ initial: 'center', lg: 'start' }} justify={{ initial: 'center', lg: 'start' }} className="opacity-0 translate-y-2 animate-[fadeInUp_800ms_ease-out_forwards]">
                       <Button
                         size="4"
                         onClick={() => navigate('/login')}
@@ -261,7 +261,7 @@ const Home: React.FC = () => {
             </div>
 
             {/* CTA banner */}
-            <div className="mt-16 relative rounded-3xl overflow-hidden">
+            <div className="mt-16 relative rounded-3xl overflow-hidden mx-2 sm:mx-0">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 opacity-95" />
               <div className="relative p-8 md:p-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-6">
