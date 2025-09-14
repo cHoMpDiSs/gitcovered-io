@@ -66,9 +66,9 @@ const Dashboard = (): JSX.Element => {
         </div>
 
         {/* Main Content */}
-        <Container size="4" className="py-8 px-2 sm:px-0">
+        <Container size="4" className="py-8 px-2 sm:px-0 max-w-5xl mx-auto">
           {/* Persistent Welcome Section above tabs */}
-          <Box className="relative overflow-hidden rounded-2xl mb-6">
+          <Box className="relative overflow-hidden rounded-2xl mb-6 mx-2 sm:mx-0">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 opacity-95" />
             <div className="relative p-8">
               <Flex direction="column" gap="2">
@@ -92,11 +92,11 @@ const Dashboard = (): JSX.Element => {
               <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
             </Tabs.List>
 
-            <Box className="mt-6">
+            <Box className="mt-6 max-w-5xl mx-auto">
               <Tabs.Content value="overview">
                 <Flex direction="column" gap="6">
             {/* Stats Grid */}
-            <Flex gap="4" wrap="wrap" className="opacity-0 translate-y-2 animate-[fadeInUp_600ms_ease-out_forwards]">
+            <Flex gap="4" wrap="wrap" className="opacity-0 translate-y-2 animate-[fadeInUp_600ms_ease-out_forwards] mx-2 sm:mx-0">
               {[
                 { label: 'Active Policies', value: '3', trend: '+1 this month', icon: (
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
@@ -144,7 +144,7 @@ const Dashboard = (): JSX.Element => {
             </Flex>
 
             {/* Overview Graph */}
-            <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 opacity-0 translate-y-2 animate-[fadeInUp_700ms_ease-out_forwards]">
+            <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 opacity-0 translate-y-2 animate-[fadeInUp_700ms_ease-out_forwards] mx-2 sm:mx-0">
               <Box className="bg-white rounded-2xl p-6">
                 <Text size="5" weight="bold">Coverage Activity</Text>
                 <div className="mt-4 h-36 flex items-end gap-2">
@@ -156,7 +156,7 @@ const Dashboard = (): JSX.Element => {
             </div>
 
             {/* Recent Activity */}
-            <Box className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 opacity-0 translate-y-2 animate-[fadeInUp_800ms_ease-out_forwards]">
+            <Box className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 opacity-0 translate-y-2 animate-[fadeInUp_800ms_ease-out_forwards] mx-2 sm:mx-0">
               <Text size="5" weight="bold" mb="6">
                 Recent Activity
               </Text>
