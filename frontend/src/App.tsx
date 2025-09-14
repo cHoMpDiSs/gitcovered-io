@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Home from './components/Home';
+import LearnMore from './components/LearnMore';
+import ScrollToTop from './components/ScrollToTop';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
@@ -45,10 +47,12 @@ function App() {
       />
       <Router>
         <Theme appearance="light" accentColor="blue" radius="medium">
+          <ScrollToTop />
           <Navbar />
         </Theme>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/learn-more" element={<LearnMore />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signin" element={<Login />} />
           <Route path="/signup" element={<Signup />} />

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Theme, Flex, Text, Box, Table, Avatar, Tabs, Button } from '@radix-ui/themes';
+import { Theme, Flex, Text, Box, Table, Avatar, Tabs } from '@radix-ui/themes';
 import { useNavigate } from 'react-router-dom';
-import { logout, getAdminProfile, checkAuthStatus } from '../services/api';
+import { getAdminProfile } from '../services/api';
 import Settings from './Settings';
 
 interface User {
@@ -55,14 +55,6 @@ const AdminDashboard: React.FC = () => {
     fetchProfile();
   }, [fetchProfile]);
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
   // Hardcoded users data
   const users: User[] = [
     {
@@ -155,7 +147,7 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <Theme>
-      <Box className="p-8 relative">
+      <Box className="p-8 relative max-w-5xl mx-auto">
         {/* Decorative background */}
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 10%, rgba(59,130,246,0.06), transparent 35%), radial-gradient(circle at 80% 90%, rgba(6,182,212,0.06), transparent 35%)' }} />

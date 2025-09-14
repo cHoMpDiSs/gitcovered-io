@@ -126,19 +126,19 @@ const Settings: React.FC<SettingsProps> = ({ onProfileUpdate }) => {
 
   return (
     <Theme appearance="light">
-      <div className="p-4 sm:p-6 relative">
+      <div className="px-2 py-4 sm:px-0 sm:py-6 relative">
         {/* Decorative background */}
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 10%, rgba(59,130,246,0.06), transparent 35%), radial-gradient(circle at 80% 90%, rgba(6,182,212,0.06), transparent 35%)' }} />
           <div className="absolute inset-0 pointer-events-none opacity-[0.3]" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.035) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
         </div>
-        <Box className="mx-auto px-2 sm:px-0 max-w-none md:max-w-2xl">
+        <Box className="mx-0 sm:mx-auto px-0 max-w-none md:max-w-2xl">
           <Flex direction="column" gap="4">
             <Text size="6" weight="bold">Account Settings</Text>
             
-            <form onSubmit={handleUpdateProfile} className="space-y-6">
+            <form onSubmit={handleUpdateProfile} className="space-y-6 mx-2 sm:mx-0">
               <Flex direction="column" gap="4">
-                <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500">
+                <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 mx-0">
                   <div className="rounded-2xl bg-white p-4">
                   <label className="block mb-2">
                     <Text size="2" weight="bold">Full Name</Text>
@@ -154,7 +154,7 @@ const Settings: React.FC<SettingsProps> = ({ onProfileUpdate }) => {
                   </div>
                 </div>
 
-                <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500">
+                <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 mx-0">
                   <div className="rounded-2xl bg-white p-4">
                   <label className="block mb-2">
                     <Text size="2" weight="bold">Email Address</Text>
@@ -170,7 +170,7 @@ const Settings: React.FC<SettingsProps> = ({ onProfileUpdate }) => {
                   </div>
                 </div>
 
-                <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500">
+                <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 mx-0">
                   <div className="rounded-2xl bg-white p-4">
                   <label className="block mb-2">
                     <Text size="2" weight="bold">Avatar URL</Text>
@@ -197,7 +197,7 @@ const Settings: React.FC<SettingsProps> = ({ onProfileUpdate }) => {
               </Flex>
             </form>
 
-            <Box className="mt-4 sm:mt-6">
+            <Box className="mt-4 sm:mt-6 mx-2 sm:mx-0">
               <Text size="2" weight="bold" className="mb-2">
                 Session
               </Text>
@@ -212,11 +212,11 @@ const Settings: React.FC<SettingsProps> = ({ onProfileUpdate }) => {
               </Button>
             </Box>
 
-            <Box className="mt-6 sm:mt-8">
-              <Text size="3" weight="bold" className="mb-4">
+            <Box className="mt-6 sm:mt-8 mx-2 sm:mx-0">
+              <Text size="3" weight="bold" className="mb-5">
                 Danger Zone
               </Text>
-              <Box className="bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-6 flex flex-col">
+              <Box className="bg-red-50 border border-red-200 rounded-2xl p-4 mt-4 sm:p-6 flex flex-col mx-0 sm:mx-0">
                 <Text size="2" color="red" className="text-sm sm:text-base font-semibold">
                   Delete your account
                 </Text>

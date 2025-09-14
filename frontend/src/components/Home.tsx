@@ -1,12 +1,13 @@
 import React from 'react';
 import { Theme, Button, Flex, Text, Container, Section } from '@radix-ui/themes';
+import Footer from './Footer';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '@radix-ui/themes/styles.css';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   return (
     <Theme appearance="light" accentColor="blue" radius="medium">
@@ -45,7 +46,7 @@ const Home: React.FC = () => {
                       </span>
                     </h1>
                   </div>
-                  <Text size="5" color="gray" className="mx-auto lg:mx-0 max-w-2xl leading-relaxed">
+                  <Text size="5" color="gray" className="text-center lg:text-left mx-auto lg:mx-0 max-w-2xl leading-relaxed">
                     The modern way to view, manage, and protect your policies with clarity and confidence.
                   </Text>
 
@@ -53,7 +54,7 @@ const Home: React.FC = () => {
                     <Flex gap="4" mt="6" align={{ initial: 'center', lg: 'start' }} justify={{ initial: 'center', lg: 'start' }} className="opacity-0 translate-y-2 animate-[fadeInUp_800ms_ease-out_forwards]">
                       <Button
                         size="4"
-                        onClick={() => navigate('/login')}
+                        onClick={() => navigate('/signup')}
                         className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/40 transition-all duration-300 hover:-translate-y-0.5"
                       >
                         Get Started
@@ -102,11 +103,11 @@ const Home: React.FC = () => {
                     </div>
 
                     {/* Mobile frame */}
-                    <div className="hidden md:block absolute -bottom-8 -left-6 w-40 rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 overflow-hidden transform transition-transform duration-500 group-hover:rotate-x-2 group-hover:-rotate-y-2">
+                    <div className="hidden xl:block absolute -bottom-8 -left-6 w-40 rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 overflow-hidden transform transition-transform duration-500 group-hover:rotate-x-2 group-hover:-rotate-y-2">
                       <div className="h-6 w-full bg-gray-100" />
                       <div className="p-3 bg-gradient-to-b from-white to-gray-50">
                         <div className="h-5 w-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded mb-3" />
-                        <img src="https://images.unsplash.com/photo-1551033406-611cf9a28f67?auto=format&fit=crop&w=800&q=60" alt="Mobile graph preview" className="h-24 w-full object-cover rounded bg-white mb-2" />
+                        <img src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&w=800&q=60" alt="High-rise apartments" className="h-24 w-full object-cover rounded bg-white mb-2" />
                         <div className="h-10 rounded bg-gray-100" />
                       </div>
                     </div>
@@ -271,8 +272,8 @@ const Home: React.FC = () => {
                   </div>
                   <div className="flex md:justify-end">
                     <div className="flex gap-3">
-                      <Button size="3" className="bg-white text-blue-700 hover:bg-blue-50">Get Started</Button>
-                      <Button size="3" className="bg-white text-blue-700 hover:bg-blue-50">Learn more</Button>
+                      <Button size="3" className="bg-white text-blue-700 hover:bg-blue-50" onClick={() => navigate('/signup')}>Get Started</Button>
+                      <Button size="3" className="bg-white text-blue-700 hover:bg-blue-50" onClick={() => navigate('/learn-more')}>Learn more</Button>
                     </div>
                   </div>
                 </div>
@@ -281,6 +282,7 @@ const Home: React.FC = () => {
           </Container>
         </section>
       </div>
+      <Footer />
     </Theme>
   );
 };
