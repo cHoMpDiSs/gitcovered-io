@@ -16,6 +16,7 @@ const AuthCallback: React.FC = () => {
         if (token) {
           // Store token and set up axios headers
           localStorage.setItem('jwt_token', token);
+          try { window.dispatchEvent(new CustomEvent('auth:token', { detail: token })); } catch {}
           
           // Check auth status with the new token
           const auth = await checkAuthStatus();

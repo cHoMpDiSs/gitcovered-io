@@ -38,13 +38,8 @@ const Navbar: React.FC = () => {
                   </button>
                 </DropdownMenu.Trigger>
                 <DropdownMenu.Content align="end">
-                  {isAdmin && (
-                    <DropdownMenu.Item onSelect={() => navigate('/admin/dashboard')}>
-                      <Text size="2">Admin dashboard</Text>
-                    </DropdownMenu.Item>
-                  )}
-                  <DropdownMenu.Item onSelect={() => navigate('/dashboard')}>
-                    <Text size="2">My dashboard</Text>
+                  <DropdownMenu.Item onSelect={() => navigate(isAdmin ? '/admin/dashboard' : '/dashboard')}>
+                    <Text size="2">Dashboard</Text>
                   </DropdownMenu.Item>
                   <DropdownMenu.Separator />
                   <DropdownMenu.Item color="red" onSelect={() => { signOut(); navigate('/signin'); }}>

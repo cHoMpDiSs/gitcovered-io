@@ -80,12 +80,46 @@ const Settings: React.FC<SettingsProps> = ({ onProfileUpdate }) => {
   if (isLoading) {
     return (
       <div className="p-6">
-        <div className="min-h-[200px] flex items-center justify-center">
-          <div
-            className="h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"
-            aria-label="Loading"
-          />
-        </div>
+        <Box className="max-w-2xl mx-auto">
+          <div className="space-y-6 animate-pulse">
+            <div className="h-7 w-40 bg-gray-200 rounded" />
+
+            <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm">
+              {/* Full Name */}
+              <div className="space-y-2">
+                <div className="h-4 w-24 bg-gray-200 rounded" />
+                <div className="h-10 w-full bg-gray-200 rounded" />
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <div className="h-4 w-28 bg-gray-200 rounded" />
+                <div className="h-10 w-full bg-gray-200 rounded" />
+              </div>
+
+              {/* Avatar URL */}
+              <div className="space-y-2">
+                <div className="h-4 w-28 bg-gray-200 rounded" />
+                <div className="h-10 w-full bg-gray-200 rounded" />
+              </div>
+
+              <div className="h-10 w-36 bg-gray-200 rounded" />
+            </div>
+
+            {/* Session */}
+            <div className="space-y-2">
+              <div className="h-4 w-20 bg-gray-200 rounded" />
+              <div className="h-10 w-full bg-gray-200 rounded" />
+            </div>
+
+            {/* Danger Zone */}
+            <div className="space-y-3">
+              <div className="h-5 w-28 bg-gray-200 rounded" />
+              <div className="h-24 w-full bg-gray-200 rounded" />
+              <div className="h-10 w-40 bg-gray-200 rounded" />
+            </div>
+          </div>
+        </Box>
       </div>
     );
   }

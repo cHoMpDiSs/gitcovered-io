@@ -155,28 +155,35 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <Theme>
-      <Box className="p-8">
+      <Box className="p-8 relative">
+        {/* Decorative background */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 10%, rgba(59,130,246,0.06), transparent 35%), radial-gradient(circle at 80% 90%, rgba(6,182,212,0.06), transparent 35%)' }} />
+          <div className="absolute inset-0 pointer-events-none opacity-[0.3]" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.035) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        </div>
         <Flex direction="column" gap="6">
           {/* Greeting Section */}
-          <Box className="bg-white p-6 md:p-8 rounded-lg shadow-sm">
-            <Flex className="flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <Flex align="center" gap="4">
-                <Avatar
-                  size="6"
-                  src={profile.avatar_img || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name)}`}
-                  fallback={profile.full_name ? profile.full_name.charAt(0).toUpperCase() : '?'}
-                  radius="full"
-                  className="border-2 border-blue-200"
-                />
-                <Text size="6" weight="bold" className="text-blue-600 md:text-[2.5rem]">
-                  {(() => {
-                    const first = (profile.full_name || '').trim().split(' ')[0] || 'there';
-                    return `Welcome, ${first.charAt(0).toUpperCase()}${first.slice(1)}!`;
-                  })()}
-                </Text>
+          <Box className="relative overflow-hidden rounded-2xl">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 opacity-95" />
+            <div className="relative p-6 md:p-8">
+              <Flex className="flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <Flex align="center" gap="4">
+                  <Avatar
+                    size="6"
+                    src={profile.avatar_img || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name)}`}
+                    fallback={profile.full_name ? profile.full_name.charAt(0).toUpperCase() : '?'}
+                    radius="full"
+                    className="border-2 border-white/50"
+                  />
+                  <Text size="6" weight="bold" className="text-white md:text-[2.5rem]">
+                    {(() => {
+                      const first = (profile.full_name || '').trim().split(' ')[0] || 'there';
+                      return `Welcome, ${first.charAt(0).toUpperCase()}${first.slice(1)}!`;
+                    })()}
+                  </Text>
+                </Flex>
               </Flex>
-              {/* Logout moved to Settings */}
-            </Flex>
+            </div>
           </Box>
 
           {/* Tabs */}
@@ -189,7 +196,7 @@ const AdminDashboard: React.FC = () => {
             <Box className="mt-6">
               <Tabs.Content value="users">
                 {/* User List */}
-                <Box className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <Box className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
                   {/* Desktop View */}
                   <div className="hidden md:block">
                     <Table.Root>

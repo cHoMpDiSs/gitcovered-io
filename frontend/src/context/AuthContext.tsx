@@ -65,6 +65,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (e.key === 'jwt_token') load();
     };
     window.addEventListener('storage', onStorage);
+    // Re-run when token changes in same tab (broadcast by services)
+    const onTokenEvent = () => load();
+    window.addEventListener('auth:token', onTokenEvent as EventListener);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 

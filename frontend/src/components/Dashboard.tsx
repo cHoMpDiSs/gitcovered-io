@@ -58,23 +58,32 @@ const Dashboard = (): JSX.Element => {
 
   return (
     <Theme appearance="light" accentColor="blue" radius="medium">
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 relative">
+        {/* Decorative background */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 10%, rgba(59,130,246,0.06), transparent 35%), radial-gradient(circle at 80% 90%, rgba(6,182,212,0.06), transparent 35%)' }} />
+          <div className="absolute inset-0 pointer-events-none opacity-[0.3]" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.035) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        </div>
+
         {/* Main Content */}
-        <Container size="4" className="py-8">
+        <Container size="4" className="py-8 px-2 sm:px-0">
           {/* Persistent Welcome Section above tabs */}
-          <Box className="bg-white p-8 rounded-lg shadow-sm mb-6">
-            <Flex direction="column" gap="3">
-              <Text size="8" weight="bold" className="break-words">
-                {(() => {
-                  const first = (profile.full_name || '').trim().split(' ')[0] || 'there';
-                  const formatted = first ? first.charAt(0).toUpperCase() + first.slice(1) : 'there';
-                  return `Welcome ${formatted}!`;
-                })()}
-              </Text>
-              <Text size="3" color="gray" className="break-words max-w-2xl">
-                View and manage your coverage details below.
-              </Text>
-            </Flex>
+          <Box className="relative overflow-hidden rounded-2xl mb-6">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 opacity-95" />
+            <div className="relative p-8">
+              <Flex direction="column" gap="2">
+                <Text size="8" weight="bold" className="text-white break-words">
+                  {(() => {
+                    const first = (profile.full_name || '').trim().split(' ')[0] || 'there';
+                    const formatted = first ? first.charAt(0).toUpperCase() + first.slice(1) : 'there';
+                    return `Welcome ${formatted}!`;
+                  })()}
+                </Text>
+                <Text size="3" className="text-blue-50 break-words max-w-2xl">
+                  View and manage your coverage details below.
+                </Text>
+              </Flex>
+            </div>
           </Box>
 
           <Tabs.Root defaultValue="settings">
@@ -94,22 +103,21 @@ const Dashboard = (): JSX.Element => {
                 { label: 'Coverage Amount', value: '$500,000' },
                 { label: 'Next Payment', value: 'Aug 15' }
               ].map((stat, index) => (
-                <Box
-                  key={index}
-                  className="bg-white p-6 rounded-lg shadow-sm flex-1 min-w-[240px] flex flex-col gap-3"
-                >
-                  <Text size="2" color="gray" className="break-words">
-                    {stat.label}
-                  </Text>
-                  <Text size="6" weight="bold" className="break-words">
-                    {stat.value}
-                  </Text>
-                </Box>
+                <div key={index} className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 flex-1 min-w-[240px]">
+                  <Box className="bg-white rounded-2xl p-6 h-full flex flex-col gap-3">
+                    <Text size="2" color="gray" className="break-words">
+                      {stat.label}
+                    </Text>
+                    <Text size="6" weight="bold" className="break-words">
+                      {stat.value}
+                    </Text>
+                  </Box>
+                </div>
               ))}
             </Flex>
 
             {/* Recent Activity */}
-            <Box className="bg-white p-8 rounded-lg shadow-sm">
+            <Box className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
               <Text size="5" weight="bold" mb="6">
                 Recent Activity
               </Text>
